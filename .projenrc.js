@@ -1,12 +1,38 @@
 const { awscdk } = require('projen');
 const project = new awscdk.AwsCdkTypeScriptApp({
-  cdkVersion: '2.1.0',
+  cdkVersion: '2.27.0',
+  license: 'MIT-0',
+  author: 'Court Schuett',
+  copyrightOwner: 'Amazon.com, Inc.',
+  authorAddress: 'https://aws.amazon.com',
   defaultReleaseBranch: 'main',
   name: 'amazon-chime-pstn-audio-lex-ivr',
-
-  // deps: [],                /* Runtime dependencies of this module. */
-  // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
-  // devDeps: [],             /* Build dependencies for this module. */
-  // packageName: undefined,  /* The "name" in package.json. */
+  depsUpgradeOptions: {
+    ignoreProjen: false,
+    workflowOptions: {
+      labels: ['auto-approve', 'auto-merge'],
+    },
+  },
+  autoApproveOptions: {
+    secret: 'GITHUB_TOKEN',
+    allowedUsernames: ['schuettc'],
+  },
+  autoApproveUpgrades: true,
+  devDeps: ['@types/prettier@2.6.0'],
+  projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
+  defaultReleaseBranch: 'main',
 });
+
+const common_exclude = [
+  'cdk.out',
+  'cdk.context.json',
+  'yarn-error.log',
+  'dependabot.yml',
+  '.DS_Store',
+];
+
+project.addTask('launch', {
+  exec: 'yarn && yarn projen && yarn build && yarn cdk bootstrap && yarn cdk deploy',
+});
+project.gitignore.exclude(...common_exclude);
 project.synth();
