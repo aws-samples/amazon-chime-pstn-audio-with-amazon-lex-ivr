@@ -1394,6 +1394,11 @@ case@1.6.3, case@^1.6.3:
   resolved "https://registry.yarnpkg.com/case/-/case-1.6.3.tgz#0a4386e3e9825351ca2e6216c60467ff5f1ea1c9"
   integrity sha512-mzDSXIPaFwVDvZAHqZ9VlbyF4yyXRuX6IvB06WvPYkqJVO24kX1PPhv9bfpKNFZyxYFmmgo03HUiD8iklmJYRQ==
 
+cdk-amazon-chime-resources@^0.1.26:
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/cdk-amazon-chime-resources/-/cdk-amazon-chime-resources-0.1.26.tgz#2d3cee68dc7a12366bfa47b63e3b330b3e43bd7b"
+  integrity sha512-Pkg5rKq6sF000KRs2HbsHtpCVveLoUgK3lTXkO7mvtbpHlNr7eLU0Ecfmv1t2VbsfvPdXtIvAN2sZawa91Tu3w==
+
 chalk@^2.0.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"

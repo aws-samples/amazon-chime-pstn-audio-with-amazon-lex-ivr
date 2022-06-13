@@ -9,6 +9,1122 @@ Object {
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
   },
+  "Resources": Object {
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": Object {
+      "DependsOn": Array [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "0758db37a61ce7177f50559cad0340df233a2001b5880615afa517203dd67c21.zip",
+        },
+        "Description": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Lambda function for auto-deleting objects in ",
+              Object {
+                "Ref": "LexlexAudioBucket4C097646",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DatabaseuserDirectoryC82077ED": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "userId",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "userId",
+            "KeyType": "HASH",
+          },
+        ],
+        "TableName": "UserDirectory98c8c235",
+        "TimeToLiveSpecification": Object {
+          "AttributeName": "TTL",
+          "Enabled": true,
+        },
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LexLexResourcePolicy80A19810": Object {
+      "Properties": Object {
+        "Policy": Object {
+          "Statement": Array [
+            Object {
+              "Action": "lex:StartConversation",
+              "Condition": Object {
+                "ArnEquals": Object {
+                  "AWS:SourceArn": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        "arn:aws:voiceconnector:",
+                        Object {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":*",
+                      ],
+                    ],
+                  },
+                },
+                "StringEquals": Object {
+                  "AWS:SourceAccount": Object {
+                    "Ref": "AWS::AccountId",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "voiceconnector.chime.amazonaws.com",
+              },
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:lex:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":bot-alias/",
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "LexchimeLexBot2A96F463",
+                        "Id",
+                      ],
+                    },
+                    "/",
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "LexchimeLexBotAlias275DAEDB",
+                        "BotAliasId",
+                      ],
+                    },
+                  ],
+                ],
+              },
+              "Sid": "AllowChimePstnAudioUseBot",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ResourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:lex:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":bot-alias/",
+              Object {
+                "Fn::GetAtt": Array [
+                  "LexchimeLexBot2A96F463",
+                  "Id",
+                ],
+              },
+              "/",
+              Object {
+                "Fn::GetAtt": Array [
+                  "LexchimeLexBotAlias275DAEDB",
+                  "BotAliasId",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lex::ResourcePolicy",
+    },
+    "LexchimeLexBot2A96F463": Object {
+      "Properties": Object {
+        "AutoBuildBotLocales": true,
+        "BotLocales": Array [
+          Object {
+            "Description": "English_US",
+            "Intents": Array [
+              Object {
+                "Description": "Intent to check the balance in the specified account type",
+                "FulfillmentCodeHook": Object {
+                  "Enabled": true,
+                },
+                "IntentClosingSetting": Object {
+                  "ClosingResponse": Object {
+                    "AllowInterrupt": false,
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Thanks for checking your balance.  Have a nice day.",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "IsActive": true,
+                },
+                "Name": "CheckBalance",
+                "OutputContexts": Array [
+                  Object {
+                    "Name": "contextCheckBalance",
+                    "TimeToLiveInSeconds": 90,
+                    "TurnsToLive": 5,
+                  },
+                ],
+                "SampleUtterances": Array [
+                  Object {
+                    "Utterance": "What’s the balance in my account ?",
+                  },
+                  Object {
+                    "Utterance": "Check my account balance",
+                  },
+                  Object {
+                    "Utterance": "What’s the balance in my {accountType} account ?",
+                  },
+                  Object {
+                    "Utterance": "How much do I have in {accountType} ?",
+                  },
+                  Object {
+                    "Utterance": "I want to check the balance",
+                  },
+                  Object {
+                    "Utterance": "Can you help me with account balance ?",
+                  },
+                  Object {
+                    "Utterance": "Balance in {accountType}",
+                  },
+                ],
+                "SlotPriorities": Array [
+                  Object {
+                    "Priority": 1,
+                    "SlotName": "accountType",
+                  },
+                  Object {
+                    "Priority": 2,
+                    "SlotName": "dateOfBirth",
+                  },
+                ],
+                "Slots": Array [
+                  Object {
+                    "Name": "accountType",
+                    "SlotTypeName": "accountType",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "For which account would you like your balance?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "dateOfBirth",
+                    "SlotTypeName": "AMAZON.Date",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "For verification purposes, what is your date of birth?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                ],
+              },
+              Object {
+                "Description": "Intent to open the specified account type",
+                "DialogCodeHook": Object {
+                  "Enabled": true,
+                },
+                "IntentConfirmationSetting": Object {
+                  "DeclinationResponse": Object {
+                    "AllowInterrupt": true,
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Lets try that again",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "IsActive": true,
+                  "PromptSpecification": Object {
+                    "AllowInterrupt": true,
+                    "MaxRetries": 2,
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "SSMLMessage": Object {
+                            "Value": "<speak>Is your phone number <say-as interpret-as=\\"telephone\\">[phoneNumber]</say-as> ?</speak>",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+                "Name": "OpenAccount",
+                "OutputContexts": Array [
+                  Object {
+                    "Name": "contextCreateAccount",
+                    "TimeToLiveInSeconds": 90,
+                    "TurnsToLive": 5,
+                  },
+                ],
+                "SampleUtterances": Array [
+                  Object {
+                    "Utterance": "Open an account",
+                  },
+                  Object {
+                    "Utterance": "Create account",
+                  },
+                  Object {
+                    "Utterance": "Open {accountType} account",
+                  },
+                  Object {
+                    "Utterance": "Create {accountType} account",
+                  },
+                ],
+                "SlotPriorities": Array [
+                  Object {
+                    "Priority": 1,
+                    "SlotName": "accountType",
+                  },
+                  Object {
+                    "Priority": 2,
+                    "SlotName": "firstName",
+                  },
+                  Object {
+                    "Priority": 3,
+                    "SlotName": "lastName",
+                  },
+                  Object {
+                    "Priority": 4,
+                    "SlotName": "phoneNumber",
+                  },
+                ],
+                "Slots": Array [
+                  Object {
+                    "Name": "accountType",
+                    "SlotTypeName": "accountType",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "What account type would you like to open?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "firstName",
+                    "SlotTypeName": "AMAZON.FirstName",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "What is your first name?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "lastName",
+                    "SlotTypeName": "AMAZON.LastName",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "What is your last name?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "phoneNumber",
+                    "SlotTypeName": "AMAZON.PhoneNumber",
+                    "ValueElicitationSetting": Object {
+                      "DefaultValueSpecification": Object {
+                        "DefaultValueList": Array [
+                          Object {
+                            "DefaultValue": "[phoneNumber]",
+                          },
+                        ],
+                      },
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "What is your phone number?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                ],
+              },
+              Object {
+                "Description": "Help user transfer funds between bank accounts",
+                "FulfillmentCodeHook": Object {
+                  "Enabled": false,
+                },
+                "IntentClosingSetting": Object {
+                  "ClosingResponse": Object {
+                    "AllowInterrupt": false,
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Thanks for transfering funds.  Have a nice day.",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "IsActive": true,
+                },
+                "IntentConfirmationSetting": Object {
+                  "DeclinationResponse": Object {
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "The transfer has been cancelled",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "PromptSpecification": Object {
+                    "MaxRetries": 2,
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Got it. So we are transferring {transferAmount} from {sourceAccountType} to {targetAccountType}. Can I go ahead with the transfer?",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+                "Name": "TransferFunds",
+                "SampleUtterances": Array [
+                  Object {
+                    "Utterance": "I want to transfer funds",
+                  },
+                  Object {
+                    "Utterance": "Can I make a transfer?",
+                  },
+                  Object {
+                    "Utterance": "I want to make a transfer",
+                  },
+                  Object {
+                    "Utterance": "I'd like to transfer {transferAmount} from {sourceAccountType} to {targetAccountType}",
+                  },
+                  Object {
+                    "Utterance": "Can I transfer {transferAmount} to my {targetAccountType}",
+                  },
+                  Object {
+                    "Utterance": "Would you be able to help me with a transfer?",
+                  },
+                  Object {
+                    "Utterance": "Need to make a transfer",
+                  },
+                ],
+                "SlotPriorities": Array [
+                  Object {
+                    "Priority": 1,
+                    "SlotName": "sourceAccountType",
+                  },
+                  Object {
+                    "Priority": 2,
+                    "SlotName": "targetAccountType",
+                  },
+                  Object {
+                    "Priority": 3,
+                    "SlotName": "transferAmount",
+                  },
+                ],
+                "Slots": Array [
+                  Object {
+                    "Name": "sourceAccountType",
+                    "SlotTypeName": "accountType",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "Which account would you like to transfer from?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "targetAccountType",
+                    "SlotTypeName": "accountType",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "Which account are you transferring to?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                  Object {
+                    "Name": "transferAmount",
+                    "SlotTypeName": "AMAZON.Number",
+                    "ValueElicitationSetting": Object {
+                      "PromptSpecification": Object {
+                        "MaxRetries": 2,
+                        "MessageGroupsList": Array [
+                          Object {
+                            "Message": Object {
+                              "PlainTextMessage": Object {
+                                "Value": "How much money would you like to transfer?",
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      "SlotConstraint": "Required",
+                    },
+                  },
+                ],
+              },
+              Object {
+                "IntentClosingSetting": Object {
+                  "ClosingResponse": Object {
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Sorry I am having trouble understanding. Can you describe what you'd like to do in a few words? I can help you find your account balance, transfer funds and open an account.",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+                "Name": "FallbackIntent",
+                "ParentIntentSignature": "AMAZON.FallbackIntent",
+              },
+            ],
+            "LocaleId": "en_US",
+            "NluConfidenceThreshold": 0.4,
+            "SlotTypes": Array [
+              Object {
+                "Description": "Slot Type description",
+                "Name": "accountType",
+                "SlotTypeValues": Array [
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "Checking",
+                    },
+                  },
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "Savings",
+                    },
+                  },
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "Credit",
+                    },
+                    "Synonyms": Array [
+                      Object {
+                        "Value": "credit card",
+                      },
+                      Object {
+                        "Value": "visa",
+                      },
+                      Object {
+                        "Value": "mastercard",
+                      },
+                      Object {
+                        "Value": "amex",
+                      },
+                      Object {
+                        "Value": "american express",
+                      },
+                    ],
+                  },
+                ],
+                "ValueSelectionSetting": Object {
+                  "ResolutionStrategy": "TOP_RESOLUTION",
+                },
+              },
+            ],
+            "VoiceSettings": Object {
+              "VoiceId": "Kimberly",
+            },
+          },
+        ],
+        "DataPrivacy": Object {
+          "ChildDirected": false,
+        },
+        "IdleSessionTTLInSeconds": 300,
+        "Name": "ChimeDemo",
+        "RoleArn": Object {
+          "Fn::GetAtt": Array [
+            "LexlexRoleB28F9876",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::Lex::Bot",
+    },
+    "LexchimeLexBotAlias275DAEDB": Object {
+      "Properties": Object {
+        "BotAliasLocaleSettings": Array [
+          Object {
+            "BotAliasLocaleSetting": Object {
+              "CodeHookSpecification": Object {
+                "LambdaCodeHook": Object {
+                  "CodeHookInterfaceVersion": "1.0",
+                  "LambdaArn": Object {
+                    "Fn::GetAtt": Array [
+                      "LexlexCodeHookD5AC5A70",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+              "Enabled": true,
+            },
+            "LocaleId": "en_US",
+          },
+        ],
+        "BotAliasName": "BankerBotDemo",
+        "BotId": Object {
+          "Ref": "LexchimeLexBot2A96F463",
+        },
+        "BotVersion": Object {
+          "Fn::GetAtt": Array [
+            "LexchimeLexBotVersion78FD7F20",
+            "BotVersion",
+          ],
+        },
+        "ConversationLogSettings": Object {
+          "AudioLogSettings": Array [
+            Object {
+              "Destination": Object {
+                "S3Bucket": Object {
+                  "LogPrefix": "chimeLexBot",
+                  "S3BucketArn": Object {
+                    "Fn::GetAtt": Array [
+                      "LexlexAudioBucket4C097646",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+              "Enabled": true,
+            },
+          ],
+          "TextLogSettings": Array [
+            Object {
+              "Destination": Object {
+                "CloudWatch": Object {
+                  "CloudWatchLogGroupArn": Object {
+                    "Fn::GetAtt": Array [
+                      "LexlexLogGroupDBC25B45",
+                      "Arn",
+                    ],
+                  },
+                  "LogPrefix": "chimeLexBot",
+                },
+              },
+              "Enabled": true,
+            },
+          ],
+        },
+        "SentimentAnalysisSettings": Object {
+          "DetectSentiment": true,
+        },
+      },
+      "Type": "AWS::Lex::BotAlias",
+    },
+    "LexchimeLexBotVersion78FD7F20": Object {
+      "Properties": Object {
+        "BotId": Object {
+          "Ref": "LexchimeLexBot2A96F463",
+        },
+        "BotVersionLocaleSpecification": Array [
+          Object {
+            "BotVersionLocaleDetails": Object {
+              "SourceBotVersion": "DRAFT",
+            },
+            "LocaleId": "en_US",
+          },
+        ],
+      },
+      "Type": "AWS::Lex::BotVersion",
+    },
+    "LexlexAudioBucket4C097646": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": Array [
+          Object {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LexlexAudioBucketAutoDeleteObjectsCustomResource35D7545E": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "LexlexAudioBucketPolicy275C5409",
+      ],
+      "Properties": Object {
+        "BucketName": Object {
+          "Ref": "LexlexAudioBucket4C097646",
+        },
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LexlexAudioBucketPolicy275C5409": Object {
+      "Properties": Object {
+        "Bucket": Object {
+          "Ref": "LexlexAudioBucket4C097646",
+        },
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": Object {
+                "AWS": Object {
+                  "Fn::GetAtt": Array [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "LexlexAudioBucket4C097646",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "LexlexAudioBucket4C097646",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "LexlexCodeHookD5AC5A70": Object {
+      "DependsOn": Array [
+        "LexlexCodeHookServiceRoleDefaultPolicyDD03C4E7",
+        "LexlexCodeHookServiceRoleA9E280CA",
+      ],
+      "Properties": Object {
+        "Architectures": Array [
+          "arm64",
+        ],
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "0e364db52cd57c364b1bc3ea5fb441fabdfa65f12e5e2e39ae40412bdc5573ec.zip",
+        },
+        "Environment": Object {
+          "Variables": Object {
+            "CALLER_TABLE_NAME": Object {
+              "Ref": "DatabaseuserDirectoryC82077ED",
+            },
+          },
+        },
+        "Handler": "index.lambda_handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "LexlexCodeHookServiceRoleA9E280CA",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.9",
+        "Timeout": 60,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LexlexCodeHookLexInvocation7060DEFC": Object {
+      "Properties": Object {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": Object {
+          "Fn::GetAtt": Array [
+            "LexlexCodeHookD5AC5A70",
+            "Arn",
+          ],
+        },
+        "Principal": "lexv2.amazonaws.com",
+        "SourceArn": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "arn:aws:lex:",
+              Object {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              Object {
+                "Ref": "AWS::AccountId",
+              },
+              ":bot-alias/",
+              Object {
+                "Fn::GetAtt": Array [
+                  "LexchimeLexBot2A96F463",
+                  "Id",
+                ],
+              },
+              "/",
+              Object {
+                "Fn::GetAtt": Array [
+                  "LexchimeLexBotAlias275DAEDB",
+                  "BotAliasId",
+                ],
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "LexlexCodeHookServiceRoleA9E280CA": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LexlexCodeHookServiceRoleDefaultPolicyDD03C4E7": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DatabaseuserDirectoryC82077ED",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LexlexCodeHookServiceRoleDefaultPolicyDD03C4E7",
+        "Roles": Array [
+          Object {
+            "Ref": "LexlexCodeHookServiceRoleA9E280CA",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "LexlexLogGroupDBC25B45": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "LexlexRoleB28F9876": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lex.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": Array [
+                    "polly:SynthesizeSpeech",
+                    "comprehend:DetectSentiment",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                Object {
+                  "Action": Array [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": Object {
+                    "Fn::GetAtt": Array [
+                      "LexlexLogGroupDBC25B45",
+                      "Arn",
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "lexPolicy",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LexlexRoleDefaultPolicy667E533C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "LexlexAudioBucket4C097646",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "LexlexAudioBucket4C097646",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LexlexRoleDefaultPolicy667E533C",
+        "Roles": Array [
+          Object {
+            "Ref": "LexlexRoleB28F9876",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
   "Rules": Object {
     "CheckBootstrapVersion": Object {
       "Assertions": Array [

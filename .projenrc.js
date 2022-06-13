@@ -7,6 +7,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   authorAddress: 'https://aws.amazon.com',
   defaultReleaseBranch: 'main',
   name: 'amazon-chime-pstn-audio-lex-ivr',
+  appEntrypoint: 'amazon-chime-pstn-audio-lex-ivr.ts',
   depsUpgradeOptions: {
     ignoreProjen: false,
     workflowOptions: {
@@ -19,6 +20,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   },
   autoApproveUpgrades: true,
   devDeps: ['@types/prettier@2.6.0'],
+  deps: ['cdk-amazon-chime-resources'],
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   defaultReleaseBranch: 'main',
 });
