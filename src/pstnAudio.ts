@@ -1,24 +1,23 @@
-import { Duration, NestedStackProps, NestedStack, Stack } from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { Duration, Stack } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as chime from 'cdk-amazon-chime-resources';
 import { Construct } from 'constructs';
 
-interface ChimeProps extends NestedStackProps {
-  readonly callerTable: dynamodb.Table;
-  readonly smaVoiceConnectorHostname: string;
+interface PSTNAudioProps {
+  readonly smaVoiceConnectorArn: string;
   readonly lexBotId: string;
   readonly lexBotAliasId: string;
 }
 
-export class Chime extends NestedStack {
+export class PSTNAudio extends Construct {
   public readonly smaId: string;
   public readonly smaHandlerLambda: NodejsFunction;
+  public readonly pstnPhoneNumber: chime.ChimePhoneNumber;
 
-  constructor(scope: Construct, id: string, props: ChimeProps) {
-    super(scope, id, props);
+  constructor(scope: Construct, id: string, props: PSTNAudioProps) {
+    super(scope, id);
 
     const smaHandlerRole = new iam.Role(this, 'smaHandlerRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -44,32 +43,36 @@ export class Chime extends NestedStack {
       bundling: {
         externalModules: ['aws-sdk'],
       },
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_16_X,
       role: smaHandlerRole,
       architecture: Architecture.ARM_64,
       timeout: Duration.seconds(60),
       environment: {
-        MEETINGS_TABLE_NAME: props.callerTable.tableName,
+        VOICE_CONNECTOR_ARN: props.smaVoiceConnectorArn,
         LEX_BOT_ID: props.lexBotId,
         LEX_BOT_ALIAS_ID: props.lexBotAliasId,
         ACCOUNT_ID: Stack.of(this).account,
       },
     });
 
-    props.callerTable.grantReadWriteData(this.smaHandlerLambda);
+    this.pstnPhoneNumber = new chime.ChimePhoneNumber(this, 'pstnPhoneNumber', {
+      phoneState: 'IL',
+      phoneCountry: chime.PhoneCountry.US,
+      phoneProductType: chime.PhoneProductType.SMA,
+      phoneNumberType: chime.PhoneNumberType.LOCAL,
+    });
 
     const sipMediaApp = new chime.ChimeSipMediaApp(this, 'sipMediaApp', {
-      region: this.region,
+      region: Stack.of(this).region,
       endpoint: this.smaHandlerLambda.functionArn,
     });
 
     new chime.ChimeSipRule(this, 'sipRule', {
-      triggerType: chime.TriggerType.REQUEST_URI_HOSTNAME,
-      triggerValue:
-        props.smaVoiceConnectorHostname + '.voiceconnector.chime.aws',
+      triggerType: chime.TriggerType.TO_PHONE_NUMBER,
+      triggerValue: this.pstnPhoneNumber.phoneNumber,
       targetApplications: [
         {
-          region: this.region,
+          region: Stack.of(this).region,
           priority: 1,
           sipMediaApplicationId: sipMediaApp.sipMediaAppId,
         },

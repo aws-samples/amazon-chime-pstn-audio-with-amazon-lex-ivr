@@ -20,7 +20,9 @@ export class Lex extends Construct {
 
     const lexCodeHook = new lambda.Function(this, 'lexCodeHook', {
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(path.join(__dirname, '../resources/lexBot')),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, '../resources/lexHandler'),
+      ),
       handler: 'index.lambda_handler',
       architecture: lambda.Architecture.ARM_64,
       timeout: Duration.minutes(1),
