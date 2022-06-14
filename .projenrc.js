@@ -23,6 +23,10 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   deps: ['cdk-amazon-chime-resources'],
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   defaultReleaseBranch: 'main',
+  scripts: {
+    launch:
+      'yarn && yarn projen && yarn build && yarn cdk bootstrap && yarn cdk deploy -O site/src/cdk-outputs.json',
+  },
 });
 
 const common_exclude = [
@@ -33,8 +37,5 @@ const common_exclude = [
   '.DS_Store',
 ];
 
-project.addTask('launch', {
-  exec: 'yarn && yarn projen && yarn build && yarn cdk bootstrap && yarn cdk deploy',
-});
 project.gitignore.exclude(...common_exclude);
 project.synth();
