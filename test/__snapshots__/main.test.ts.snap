@@ -1085,26 +1085,19 @@ ldconfig
         "properties": Object {
           "encryption": false,
           "name": "testAsterisksmaVoiceConnectorFFAC0C0B",
+          "origination": Array [
+            Object {
+              "host": Object {
+                "Ref": "AsteriskasteriskEipB136F44F",
+              },
+              "port": 5060,
+              "priority": 1,
+              "protocol": "UDP",
+              "weight": 1,
+            },
+          ],
           "region": Object {
             "Ref": "AWS::Region",
-          },
-          "termination": Object {
-            "callingRegions": Array [
-              "US",
-            ],
-            "terminationCidrs": Array [
-              Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    Object {
-                      "Ref": "AsteriskasteriskEipB136F44F",
-                    },
-                    "/32",
-                  ],
-                ],
-              },
-            ],
           },
         },
         "resourceType": "VoiceConnector",
@@ -1400,271 +1393,13 @@ ldconfig
             "Description": "English_US",
             "Intents": Array [
               Object {
-                "Description": "Intent to check the balance in the specified account type",
-                "FulfillmentCodeHook": Object {
-                  "Enabled": true,
-                },
-                "IntentClosingSetting": Object {
-                  "ClosingResponse": Object {
-                    "AllowInterrupt": false,
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "PlainTextMessage": Object {
-                            "Value": "Thanks for checking your balance.  Have a nice day.",
-                          },
-                        },
-                      },
-                    ],
-                  },
-                  "IsActive": true,
-                },
-                "Name": "CheckBalance",
-                "OutputContexts": Array [
-                  Object {
-                    "Name": "contextCheckBalance",
-                    "TimeToLiveInSeconds": 90,
-                    "TurnsToLive": 5,
-                  },
-                ],
-                "SampleUtterances": Array [
-                  Object {
-                    "Utterance": "What’s the balance in my account ?",
-                  },
-                  Object {
-                    "Utterance": "Check my account balance",
-                  },
-                  Object {
-                    "Utterance": "What’s the balance in my {accountType} account ?",
-                  },
-                  Object {
-                    "Utterance": "How much do I have in {accountType} ?",
-                  },
-                  Object {
-                    "Utterance": "I want to check the balance",
-                  },
-                  Object {
-                    "Utterance": "Can you help me with account balance ?",
-                  },
-                  Object {
-                    "Utterance": "Balance in {accountType}",
-                  },
-                ],
-                "SlotPriorities": Array [
-                  Object {
-                    "Priority": 1,
-                    "SlotName": "accountType",
-                  },
-                  Object {
-                    "Priority": 2,
-                    "SlotName": "dateOfBirth",
-                  },
-                ],
-                "Slots": Array [
-                  Object {
-                    "Name": "accountType",
-                    "SlotTypeName": "accountType",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "For which account would you like your balance?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "dateOfBirth",
-                    "SlotTypeName": "AMAZON.Date",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "For verification purposes, what is your date of birth?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                ],
-              },
-              Object {
-                "Description": "Intent to open the specified account type",
+                "Description": "Simple Call Routing",
                 "DialogCodeHook": Object {
-                  "Enabled": true,
-                },
-                "IntentConfirmationSetting": Object {
-                  "DeclinationResponse": Object {
-                    "AllowInterrupt": true,
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "PlainTextMessage": Object {
-                            "Value": "Lets try that again",
-                          },
-                        },
-                      },
-                    ],
-                  },
-                  "IsActive": true,
-                  "PromptSpecification": Object {
-                    "AllowInterrupt": true,
-                    "MaxRetries": 2,
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "SSMLMessage": Object {
-                            "Value": "<speak>Is your phone number <say-as interpret-as=\\"telephone\\">[phoneNumber]</say-as> ?</speak>",
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-                "Name": "OpenAccount",
-                "OutputContexts": Array [
-                  Object {
-                    "Name": "contextCreateAccount",
-                    "TimeToLiveInSeconds": 90,
-                    "TurnsToLive": 5,
-                  },
-                ],
-                "SampleUtterances": Array [
-                  Object {
-                    "Utterance": "Open an account",
-                  },
-                  Object {
-                    "Utterance": "Create account",
-                  },
-                  Object {
-                    "Utterance": "Open {accountType} account",
-                  },
-                  Object {
-                    "Utterance": "Create {accountType} account",
-                  },
-                ],
-                "SlotPriorities": Array [
-                  Object {
-                    "Priority": 1,
-                    "SlotName": "accountType",
-                  },
-                  Object {
-                    "Priority": 2,
-                    "SlotName": "firstName",
-                  },
-                  Object {
-                    "Priority": 3,
-                    "SlotName": "lastName",
-                  },
-                  Object {
-                    "Priority": 4,
-                    "SlotName": "phoneNumber",
-                  },
-                ],
-                "Slots": Array [
-                  Object {
-                    "Name": "accountType",
-                    "SlotTypeName": "accountType",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "What account type would you like to open?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "firstName",
-                    "SlotTypeName": "AMAZON.FirstName",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "What is your first name?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "lastName",
-                    "SlotTypeName": "AMAZON.LastName",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "What is your last name?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "phoneNumber",
-                    "SlotTypeName": "AMAZON.PhoneNumber",
-                    "ValueElicitationSetting": Object {
-                      "DefaultValueSpecification": Object {
-                        "DefaultValueList": Array [
-                          Object {
-                            "DefaultValue": "[phoneNumber]",
-                          },
-                        ],
-                      },
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "What is your phone number?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                ],
-              },
-              Object {
-                "Description": "Help user transfer funds between bank accounts",
-                "FulfillmentCodeHook": Object {
                   "Enabled": false,
                 },
+                "FulfillmentCodeHook": Object {
+                  "Enabled": true,
+                },
                 "IntentClosingSetting": Object {
                   "ClosingResponse": Object {
                     "AllowInterrupt": false,
@@ -1672,7 +1407,7 @@ ldconfig
                       Object {
                         "Message": Object {
                           "PlainTextMessage": Object {
-                            "Value": "Thanks for transfering funds.  Have a nice day.",
+                            "Value": "Dialing your extension.",
                           },
                         },
                       },
@@ -1680,73 +1415,47 @@ ldconfig
                   },
                   "IsActive": true,
                 },
-                "IntentConfirmationSetting": Object {
-                  "DeclinationResponse": Object {
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "PlainTextMessage": Object {
-                            "Value": "The transfer has been cancelled",
-                          },
-                        },
-                      },
-                    ],
+                "Name": "RouteCall",
+                "OutputContexts": Array [
+                  Object {
+                    "Name": "extensionToDial",
+                    "TimeToLiveInSeconds": 90,
+                    "TurnsToLive": 5,
                   },
-                  "PromptSpecification": Object {
-                    "MaxRetries": 2,
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "PlainTextMessage": Object {
-                            "Value": "Got it. So we are transferring {transferAmount} from {sourceAccountType} to {targetAccountType}. Can I go ahead with the transfer?",
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-                "Name": "TransferFunds",
+                ],
                 "SampleUtterances": Array [
                   Object {
-                    "Utterance": "I want to transfer funds",
+                    "Utterance": "Call {Department}",
                   },
                   Object {
-                    "Utterance": "Can I make a transfer?",
+                    "Utterance": "{Department}",
                   },
                   Object {
-                    "Utterance": "I want to make a transfer",
+                    "Utterance": "Dial {Department}",
                   },
                   Object {
-                    "Utterance": "I'd like to transfer {transferAmount} from {sourceAccountType} to {targetAccountType}",
+                    "Utterance": "Talk to {Department}",
                   },
                   Object {
-                    "Utterance": "Can I transfer {transferAmount} to my {targetAccountType}",
+                    "Utterance": "I need {Department}",
                   },
                   Object {
-                    "Utterance": "Would you be able to help me with a transfer?",
+                    "Utterance": "It's {Department}",
                   },
                   Object {
-                    "Utterance": "Need to make a transfer",
+                    "Utterance": "I want {Department}",
                   },
                 ],
                 "SlotPriorities": Array [
                   Object {
                     "Priority": 1,
-                    "SlotName": "sourceAccountType",
-                  },
-                  Object {
-                    "Priority": 2,
-                    "SlotName": "targetAccountType",
-                  },
-                  Object {
-                    "Priority": 3,
-                    "SlotName": "transferAmount",
+                    "SlotName": "Department",
                   },
                 ],
                 "Slots": Array [
                   Object {
-                    "Name": "sourceAccountType",
-                    "SlotTypeName": "accountType",
+                    "Name": "Department",
+                    "SlotTypeName": "AMAZON.AlphaNumeric",
                     "ValueElicitationSetting": Object {
                       "PromptSpecification": Object {
                         "MaxRetries": 2,
@@ -1754,45 +1463,7 @@ ldconfig
                           Object {
                             "Message": Object {
                               "PlainTextMessage": Object {
-                                "Value": "Which account would you like to transfer from?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "targetAccountType",
-                    "SlotTypeName": "accountType",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "Which account are you transferring to?",
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      "SlotConstraint": "Required",
-                    },
-                  },
-                  Object {
-                    "Name": "transferAmount",
-                    "SlotTypeName": "AMAZON.Number",
-                    "ValueElicitationSetting": Object {
-                      "PromptSpecification": Object {
-                        "MaxRetries": 2,
-                        "MessageGroupsList": Array [
-                          Object {
-                            "Message": Object {
-                              "PlainTextMessage": Object {
-                                "Value": "How much money would you like to transfer?",
+                                "Value": "What department do you want?",
                               },
                             },
                           },
@@ -1810,7 +1481,7 @@ ldconfig
                       Object {
                         "Message": Object {
                           "PlainTextMessage": Object {
-                            "Value": "Sorry I am having trouble understanding. Can you describe what you'd like to do in a few words? I can help you find your account balance, transfer funds and open an account.",
+                            "Value": "Sorry I am having trouble understanding. Can you say the person's name again?",
                           },
                         },
                       },
@@ -1823,49 +1494,6 @@ ldconfig
             ],
             "LocaleId": "en_US",
             "NluConfidenceThreshold": 0.4,
-            "SlotTypes": Array [
-              Object {
-                "Description": "Slot Type description",
-                "Name": "accountType",
-                "SlotTypeValues": Array [
-                  Object {
-                    "SampleValue": Object {
-                      "Value": "Checking",
-                    },
-                  },
-                  Object {
-                    "SampleValue": Object {
-                      "Value": "Savings",
-                    },
-                  },
-                  Object {
-                    "SampleValue": Object {
-                      "Value": "Credit",
-                    },
-                    "Synonyms": Array [
-                      Object {
-                        "Value": "credit card",
-                      },
-                      Object {
-                        "Value": "visa",
-                      },
-                      Object {
-                        "Value": "mastercard",
-                      },
-                      Object {
-                        "Value": "amex",
-                      },
-                      Object {
-                        "Value": "american express",
-                      },
-                    ],
-                  },
-                ],
-                "ValueSelectionSetting": Object {
-                  "ResolutionStrategy": "TOP_RESOLUTION",
-                },
-              },
-            ],
             "VoiceSettings": Object {
               "VoiceId": "Kimberly",
             },
@@ -1875,7 +1503,7 @@ ldconfig
           "ChildDirected": false,
         },
         "IdleSessionTTLInSeconds": 300,
-        "Name": "ChimeDemo",
+        "Name": "CallRoutingDemo",
         "RoleArn": Object {
           "Fn::GetAtt": Array [
             "LexlexRoleB28F9876",
@@ -1906,7 +1534,7 @@ ldconfig
             "LocaleId": "en_US",
           },
         ],
-        "BotAliasName": "BankerBotDemo",
+        "BotAliasName": "DialDepartmentBot",
         "BotId": Object {
           "Ref": "LexchimeLexBot2A96F463",
         },
@@ -2074,11 +1702,11 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "0e364db52cd57c364b1bc3ea5fb441fabdfa65f12e5e2e39ae40412bdc5573ec.zip",
+          "S3Key": "3a8ba78a58d71ef221eab3f8046a6ea8d6a028a9c73376190cdb050b403dc94e.zip",
         },
         "Environment": Object {
           "Variables": Object {
-            "CALLER_TABLE_NAME": Object {
+            "USER_DIRECTORY_TABLE": Object {
               "Ref": "DatabaseuserDirectoryC82077ED",
             },
           },
@@ -2117,20 +1745,7 @@ ldconfig
               Object {
                 "Ref": "AWS::AccountId",
               },
-              ":bot-alias/",
-              Object {
-                "Fn::GetAtt": Array [
-                  "LexchimeLexBot2A96F463",
-                  "Id",
-                ],
-              },
-              "/",
-              Object {
-                "Fn::GetAtt": Array [
-                  "LexchimeLexBotAlias275DAEDB",
-                  "BotAliasId",
-                ],
-              },
+              ":bot-alias/*",
             ],
           ],
         },
@@ -2745,7 +2360,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "577a125ee135bf17a027857f07ba3d225219db4d6cf7b774805af075a427b261.zip",
+          "S3Key": "0f7e2bd79d4ec7ba090cd07eaf76431d8998f230255822117f7289f8ceba3ad1.zip",
         },
         "Environment": Object {
           "Variables": Object {

@@ -105,10 +105,15 @@ export class Asterisk extends Construct {
       this,
       'smaVoiceConnector',
       {
-        termination: {
-          terminationCidrs: [`${this.asteriskEip.ref}/32`],
-          callingRegions: ['US'],
-        },
+        origination: [
+          {
+            host: this.asteriskEip.ref,
+            port: 5060,
+            protocol: chime.Protocol.UDP,
+            priority: 1,
+            weight: 1,
+          },
+        ],
         encryption: false,
       },
     );

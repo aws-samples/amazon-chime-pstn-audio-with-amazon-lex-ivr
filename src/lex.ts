@@ -27,7 +27,7 @@ export class Lex extends Construct {
       architecture: lambda.Architecture.ARM_64,
       timeout: Duration.minutes(1),
       environment: {
-        CALLER_TABLE_NAME: props.userDirectory.tableName,
+        USER_DIRECTORY_TABLE: props.userDirectory.tableName,
       },
     });
 
@@ -71,7 +71,7 @@ export class Lex extends Construct {
     const chimeLexBot = new lex.CfnBot(this, 'chimeLexBot', {
       dataPrivacy: { ChildDirected: false },
       idleSessionTtlInSeconds: 300,
-      name: 'ChimeDemo',
+      name: 'CallRoutingDemo',
       roleArn: lexRole.roleArn,
       autoBuildBotLocales: true,
       botLocales: [
@@ -82,300 +82,37 @@ export class Lex extends Construct {
             voiceId: 'Kimberly',
           },
           description: 'English_US',
-          slotTypes: [
-            {
-              name: 'accountType',
-              description: 'Slot Type description',
-              valueSelectionSetting: {
-                resolutionStrategy: 'TOP_RESOLUTION',
-              },
-              slotTypeValues: [
-                {
-                  sampleValue: {
-                    value: 'Checking',
-                  },
-                },
-                {
-                  sampleValue: {
-                    value: 'Savings',
-                  },
-                },
-                {
-                  sampleValue: {
-                    value: 'Credit',
-                  },
-                  synonyms: [
-                    {
-                      value: 'credit card',
-                    },
-                    {
-                      value: 'visa',
-                    },
-                    {
-                      value: 'mastercard',
-                    },
-                    {
-                      value: 'amex',
-                    },
-                    {
-                      value: 'american express',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
           intents: [
             {
-              name: 'CheckBalance',
-              description:
-                'Intent to check the balance in the specified account type',
+              name: 'RouteCall',
+              description: 'Simple Call Routing',
               sampleUtterances: [
-                { utterance: 'What’s the balance in my account ?' },
-                { utterance: 'Check my account balance' },
-                {
-                  utterance: 'What’s the balance in my {accountType} account ?',
-                },
-                { utterance: 'How much do I have in {accountType} ?' },
-                { utterance: 'I want to check the balance' },
-                { utterance: 'Can you help me with account balance ?' },
-                { utterance: 'Balance in {accountType}' },
+                { utterance: 'Call {Department}' },
+                { utterance: '{Department}' },
+                { utterance: 'Dial {Department}' },
+                { utterance: 'Talk to {Department}' },
+                { utterance: 'I need {Department}' },
+                { utterance: "It's {Department}" },
+                { utterance: 'I want {Department}' },
               ],
               fulfillmentCodeHook: { enabled: true },
-              outputContexts: [
-                {
-                  name: 'contextCheckBalance',
-                  timeToLiveInSeconds: 90,
-                  turnsToLive: 5,
-                },
-              ],
-              intentClosingSetting: {
-                closingResponse: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value:
-                            'Thanks for checking your balance.  Have a nice day.',
-                        },
-                      },
-                    },
-                  ],
-                  allowInterrupt: false,
-                },
-                isActive: true,
-              },
-              slots: [
-                {
-                  name: 'accountType',
-                  slotTypeName: 'accountType',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value:
-                                'For which account would you like your balance?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'dateOfBirth',
-                  slotTypeName: 'AMAZON.Date',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value:
-                                'For verification purposes, what is your date of birth?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              ],
-              slotPriorities: [
-                { priority: 1, slotName: 'accountType' },
-                { priority: 2, slotName: 'dateOfBirth' },
-              ],
-            },
-            {
-              name: 'OpenAccount',
-              description: 'Intent to open the specified account type',
               dialogCodeHook: {
-                enabled: true,
-              },
-              sampleUtterances: [
-                { utterance: 'Open an account' },
-                { utterance: 'Create account' },
-                { utterance: 'Open {accountType} account' },
-                { utterance: 'Create {accountType} account' },
-              ],
-              intentConfirmationSetting: {
-                declinationResponse: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value: 'Lets try that again',
-                        },
-                      },
-                    },
-                  ],
-                  allowInterrupt: true,
-                },
-                promptSpecification: {
-                  maxRetries: 2,
-                  messageGroupsList: [
-                    {
-                      message: {
-                        ssmlMessage: {
-                          value:
-                            '<speak>Is your phone number <say-as interpret-as="telephone">[phoneNumber]</say-as> ?</speak>',
-                        },
-                      },
-                    },
-                  ],
-                  allowInterrupt: true,
-                },
-                isActive: true,
+                enabled: false,
               },
               outputContexts: [
                 {
-                  name: 'contextCreateAccount',
+                  name: 'extensionToDial',
                   timeToLiveInSeconds: 90,
                   turnsToLive: 5,
                 },
               ],
-              slots: [
-                {
-                  name: 'accountType',
-                  slotTypeName: 'accountType',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value:
-                                'What account type would you like to open?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'firstName',
-                  slotTypeName: 'AMAZON.FirstName',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value: 'What is your first name?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'lastName',
-                  slotTypeName: 'AMAZON.LastName',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value: 'What is your last name?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'phoneNumber',
-                  slotTypeName: 'AMAZON.PhoneNumber',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    defaultValueSpecification: {
-                      defaultValueList: [{ defaultValue: '[phoneNumber]' }],
-                    },
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value: 'What is your phone number?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              ],
-              slotPriorities: [
-                { priority: 1, slotName: 'accountType' },
-                { priority: 2, slotName: 'firstName' },
-                { priority: 3, slotName: 'lastName' },
-                { priority: 4, slotName: 'phoneNumber' },
-              ],
-            },
-            {
-              name: 'TransferFunds',
-              description: 'Help user transfer funds between bank accounts',
-              sampleUtterances: [
-                { utterance: 'I want to transfer funds' },
-                { utterance: 'Can I make a transfer?' },
-                { utterance: 'I want to make a transfer' },
-                {
-                  utterance:
-                    "I'd like to transfer {transferAmount} from {sourceAccountType} to {targetAccountType}",
-                },
-                {
-                  utterance:
-                    'Can I transfer {transferAmount} to my {targetAccountType}',
-                },
-                { utterance: 'Would you be able to help me with a transfer?' },
-                { utterance: 'Need to make a transfer' },
-              ],
-              fulfillmentCodeHook: { enabled: false },
               intentClosingSetting: {
                 closingResponse: {
                   messageGroupsList: [
                     {
                       message: {
                         plainTextMessage: {
-                          value:
-                            'Thanks for transfering funds.  Have a nice day.',
+                          value: 'Dialing your extension.',
                         },
                       },
                     },
@@ -384,36 +121,10 @@ export class Lex extends Construct {
                 },
                 isActive: true,
               },
-              intentConfirmationSetting: {
-                declinationResponse: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value: 'The transfer has been cancelled',
-                        },
-                      },
-                    },
-                  ],
-                },
-                promptSpecification: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value:
-                            'Got it. So we are transferring {transferAmount} from {sourceAccountType} to {targetAccountType}. Can I go ahead with the transfer?',
-                        },
-                      },
-                    },
-                  ],
-                  maxRetries: 2,
-                },
-              },
               slots: [
                 {
-                  name: 'sourceAccountType',
-                  slotTypeName: 'accountType',
+                  name: 'Department',
+                  slotTypeName: 'AMAZON.AlphaNumeric',
                   valueElicitationSetting: {
                     slotConstraint: 'Required',
                     promptSpecification: {
@@ -422,47 +133,7 @@ export class Lex extends Construct {
                         {
                           message: {
                             plainTextMessage: {
-                              value:
-                                'Which account would you like to transfer from?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'targetAccountType',
-                  slotTypeName: 'accountType',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value: 'Which account are you transferring to?',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                {
-                  name: 'transferAmount',
-                  slotTypeName: 'AMAZON.Number',
-                  valueElicitationSetting: {
-                    slotConstraint: 'Required',
-                    promptSpecification: {
-                      maxRetries: 2,
-                      messageGroupsList: [
-                        {
-                          message: {
-                            plainTextMessage: {
-                              value:
-                                'How much money would you like to transfer?',
+                              value: 'What department do you want?',
                             },
                           },
                         },
@@ -471,11 +142,7 @@ export class Lex extends Construct {
                   },
                 },
               ],
-              slotPriorities: [
-                { priority: 1, slotName: 'sourceAccountType' },
-                { priority: 2, slotName: 'targetAccountType' },
-                { priority: 3, slotName: 'transferAmount' },
-              ],
+              slotPriorities: [{ priority: 1, slotName: 'Department' }],
             },
             {
               name: 'FallbackIntent',
@@ -487,7 +154,7 @@ export class Lex extends Construct {
                       message: {
                         plainTextMessage: {
                           value:
-                            "Sorry I am having trouble understanding. Can you describe what you'd like to do in a few words? I can help you find your account balance, transfer funds and open an account.",
+                            "Sorry I am having trouble understanding. Can you say the person's name again?",
                         },
                       },
                     },
@@ -517,7 +184,7 @@ export class Lex extends Construct {
     );
 
     const chimeLexBotAlias = new lex.CfnBotAlias(this, 'chimeLexBotAlias', {
-      botAliasName: 'BankerBotDemo',
+      botAliasName: 'DialDepartmentBot',
       botId: chimeLexBot.ref,
       botAliasLocaleSettings: [
         {
@@ -597,7 +264,9 @@ export class Lex extends Construct {
 
     lexCodeHook.addPermission('Lex Invocation', {
       principal: new iam.ServicePrincipal('lexv2.amazonaws.com'),
-      sourceArn: lexArn,
+      sourceArn: `arn:aws:lex:${Stack.of(this).region}:${
+        Stack.of(this).account
+      }:bot-alias/*`,
     });
 
     this.lexBotId = chimeLexBot.attrId;

@@ -180,12 +180,13 @@ def dispatch(intent_request):
     intent_name = intent_request["sessionState"]["intent"]["name"]
     response = None
     # Dispatch to your bot's intent handlers
-    if intent_name == "CheckBalance":
-        return CheckBalance(intent_request)
-    elif intent_name == "FollowupCheckBalance":
-        return FollowupCheckBalance(intent_request)
-    elif intent_name == "OpenAccount":
-        return OpenAccount(intent_request)
+    if intent_name == "DialExtension":
+        print("DialExtension")
+        text = "Dialing extension"
+        message = {"contentType": "PlainText", "content": text}
+        fulfillment_state = "Fulfilled"
+        session_attributes = get_session_attributes(intent_request)
+        return close(session_attributes, "DialExtension", fulfillment_state, message)
 
     raise Exception("Intent with name " + intent_name + " not supported")
 
