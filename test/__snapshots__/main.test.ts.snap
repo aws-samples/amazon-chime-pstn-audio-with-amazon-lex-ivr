@@ -69,6 +69,60 @@ Object {
     },
   },
   "Resources": Object {
+    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": Object {
+      "DependsOn": Array [
+        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      ],
+      "Properties": Object {
+        "Code": Object {
+          "S3Bucket": Object {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "9ab58259097ac1249b4061ac6e823f78810b11c4c760a30324f6d012fe8e6440.zip",
+        },
+        "Handler": "index.handler",
+        "Role": Object {
+          "Fn::GetAtt": Array [
+            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 120,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "AsteriskAsteriskSecurityGroup2A659F86": Object {
       "Properties": Object {
         "GroupDescription": "Security Group for Asterisk Instance",
@@ -1259,23 +1313,73 @@ ldconfig
       },
       "Type": "AWS::IAM::Role",
     },
+    "DatabaseinitTable29D32BF5": Object {
+      "DeletionPolicy": "Delete",
+      "DependsOn": Array [
+        "DatabaseinitTableCustomResourcePolicy07832289",
+      ],
+      "Properties": Object {
+        "Create": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
+              Object {
+                "Ref": "DatabaseuserDirectoryC82077ED",
+              },
+              "_initialization\\"}}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": true,
+        "ServiceToken": Object {
+          "Fn::GetAtt": Array [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::AWS",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "DatabaseinitTableCustomResourcePolicy07832289": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "dynamodb:BatchWriteItem",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DatabaseinitTableCustomResourcePolicy07832289",
+        "Roles": Array [
+          Object {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "DatabaseuserDirectoryC82077ED": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
         "AttributeDefinitions": Array [
           Object {
-            "AttributeName": "userId",
+            "AttributeName": "department_name",
             "AttributeType": "S",
           },
         ],
         "BillingMode": "PAY_PER_REQUEST",
         "KeySchema": Array [
           Object {
-            "AttributeName": "userId",
+            "AttributeName": "department_name",
             "KeyType": "HASH",
           },
         ],
-        "TableName": "UserDirectory98c8c235",
+        "TableName": "Departments",
         "TimeToLiveSpecification": Object {
           "AttributeName": "TTL",
           "Enabled": true,
@@ -1395,7 +1499,7 @@ ldconfig
               Object {
                 "Description": "Simple Call Routing",
                 "DialogCodeHook": Object {
-                  "Enabled": false,
+                  "Enabled": true,
                 },
                 "FulfillmentCodeHook": Object {
                   "Enabled": true,
@@ -1702,7 +1806,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "3a8ba78a58d71ef221eab3f8046a6ea8d6a028a9c73376190cdb050b403dc94e.zip",
+          "S3Key": "d96e40670d8ed4b5ff112eda7a0779f43beaad712972b1327365abac77b3b646.zip",
         },
         "Environment": Object {
           "Variables": Object {

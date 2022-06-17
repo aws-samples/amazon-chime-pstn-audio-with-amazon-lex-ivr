@@ -1,12 +1,41 @@
-import random
-import decimal
+import os
+import boto3
 import logging
+from botocore.client import Config
 
+# Set LogLevel using environment variable, fallback to INFO if not present
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+try:
+    log_level = os.environ["LogLevel"]
+    if log_level not in ["INFO", "DEBUG"]:
+        log_level = "INFO"
+except:
+    log_level = "INFO"
+logger.setLevel(log_level)
+
+user_directory_table = os.environ["USER_DIRECTORY_TABLE"]
+
+client_config = Config(connect_timeout=2, read_timeout=2, retries={"max_attempts": 5})
+dynamodb_client = boto3.client("dynamodb", config=client_config, region_name=os.environ["AWS_REGION"])
 
 
-# --- Helpers that build all of the responses ---
+def get_department(department_name):
+    try:
+        response = dynamodb_client.get_item(
+            Key={
+                "department_name": {
+                    "S": str(department_name),
+                },
+            },
+            TableName=user_directory_table,
+        )
+        if "Item" in response:
+            return response["Item"]["department_name"]["S"]
+        else:
+            return False
+    except Exception as err:
+        logger.error("DynamoDB Query error: failed to fetch data from table. Error: ", exc_info=err)
+        return None
 
 
 def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message):
@@ -88,10 +117,6 @@ def interpreted_value(slot):
     return slot
 
 
-def random_num():
-    return decimal.Decimal(random.randrange(1000, 50000)) / 100
-
-
 def get_slots(intent_request):
     return intent_request["sessionState"]["intent"]["slots"]
 
@@ -112,67 +137,25 @@ def get_session_attributes(intent_request):
     return {}
 
 
-def CheckBalance(intent_request):
+def RouteCall(intent_request):
     session_attributes = get_session_attributes(intent_request)
     slots = get_slots(intent_request)
-    account = get_slot(intent_request, "accountType")
-    # The account balance in this case is a random number
-    # Here is where you could query a system to get this information
-    balance = str(random_num())
-    text = "Thank you. The balance on your " + account + " account is $" + balance
-    message = {"contentType": "PlainText", "content": text}
-    fulfillment_state = "Fulfilled"
-    return close(session_attributes, "CheckBalance", fulfillment_state, message)
-
-
-def OpenAccount(intent_request):
-    session_attributes = get_session_attributes(intent_request)
-    slots = intent_request["sessionState"]["intent"]["slots"]
-    state = intent_request["sessionState"]["intent"]["state"]
-
-    first_name = slots["firstName"]
-    last_name = slots["lastName"]
-    account_type = slots["accountType"]
-    phone_number = slots["phoneNumber"]
-
-    if intent_request["sessionState"]["intent"]["confirmationState"] == "Denied":
-        print("Confirmation Denied")
+    department = get_slot(intent_request, "Department")
+    query_department = get_department(department)
+    if query_department:
+        text = "Connecting you to " + department + " department."
+        message = {"contentType": "PlainText", "content": text}
+        fulfillment_state = "Fulfilled"
+        return close(session_attributes, "RouteCall", fulfillment_state, message)
+    else:
         session_attributes = {}
         try_ex(lambda: slots.pop("phoneNumber"))
         return elicit_slot(
             session_attributes,
             intent_request["sessionState"]["intent"]["name"],
             slots,
-            "phoneNumber",
-            {"contentType": "PlainText", "content": "What is your phone number?"},
-        )
-
-    elif intent_request["sessionState"]["intent"]["confirmationState"] == "Confirmed":
-        print("Confirmation Confirmed")
-        account = get_slot(intent_request, "accountType")
-        text = "Thank you. Let me transfer you to an agent to open the " + account + " account."
-        message = {"contentType": "PlainText", "content": text}
-        fulfillment_state = "Fulfilled"
-        return close(session_attributes, "OpenAccount", fulfillment_state, message)
-    else:
-        print("Normal Turn")
-        if first_name and last_name and account_type and phone_number:
-            return confirm_intent(
-                session_attributes,
-                intent_request["sessionState"]["intent"]["name"],
-                slots,
-                {
-                    "contentType": "SSML",
-                    "content": '<speak>Is your phone number <say-as interpret-as="telephone"> '
-                    + interpreted_value(phone_number)
-                    + " </say-as></speak>",
-                },
-            )
-
-        return delegate(
-            session_attributes,
-            intent_request["sessionState"]["intent"]["name"],
-            intent_request["sessionState"]["intent"]["slots"],
+            "Department",
+            {"contentType": "PlainText", "content": "What department are you looking for?"},
         )
 
 
@@ -180,13 +163,8 @@ def dispatch(intent_request):
     intent_name = intent_request["sessionState"]["intent"]["name"]
     response = None
     # Dispatch to your bot's intent handlers
-    if intent_name == "DialExtension":
-        print("DialExtension")
-        text = "Dialing extension"
-        message = {"contentType": "PlainText", "content": text}
-        fulfillment_state = "Fulfilled"
-        session_attributes = get_session_attributes(intent_request)
-        return close(session_attributes, "DialExtension", fulfillment_state, message)
+    if intent_name == "RouteCall":
+        return RouteCall(intent_request)
 
     raise Exception("Intent with name " + intent_name + " not supported")
 

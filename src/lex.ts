@@ -97,7 +97,7 @@ export class Lex extends Construct {
               ],
               fulfillmentCodeHook: { enabled: true },
               dialogCodeHook: {
-                enabled: false,
+                enabled: true,
               },
               outputContexts: [
                 {
