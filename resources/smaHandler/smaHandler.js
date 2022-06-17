@@ -1,8 +1,8 @@
+// resources/smaHandler/smaHandler.js
 var lexBotId = process.env['LEX_BOT_ID'];
 var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
 var voiceConnectorArn = process.env['VOICE_CONNECTOR_ARN'];
-
 exports.handler = async (event, context, callback) => {
   console.log('Lambda is invoked with calldetails:' + JSON.stringify(event));
   let actions;
@@ -19,12 +19,18 @@ exports.handler = async (event, context, callback) => {
       break;
     case 'ACTION_SUCCESSFUL':
       console.log('ACTION SUCCESSFUL');
-      callAndBridgeAction.Parameters.CallerIdNumber =
-        event.CallDetails.Participants[0].From;
-      callAndBridgeAction.Parameters.SipHeaders['X-LexInfo'] =
-        event.ActionData.IntentResult.SessionState.Intent.Slots.Extension.Value.InterpretedValue;
-      actions = [callAndBridgeAction];
-      break;
+      if (event.ActionData.Type == 'StartBotConversation') {
+        callAndBridgeAction.Parameters.CallerIdNumber =
+          event.CallDetails.Participants[0].From;
+        callAndBridgeAction.Parameters.SipHeaders['X-LexInfo'] =
+          event.ActionData.IntentResult.SessionState.Intent.Slots.Department.Value.InterpretedValue;
+        actions = [callAndBridgeAction];
+        break;
+      } else if (event.ActionData.Type == 'CallAndBridge') {
+        break;
+      } else {
+        break;
+      }
     case 'HANGUP':
       console.log('HANGUP ACTION');
       break;
@@ -75,7 +81,7 @@ var callAndBridgeAction = {
     CallerIdNumber: '',
     Endpoints: [
       {
-        Uri: '5551212',
+        Uri: '+18155551212',
         BridgeEndpointType: 'AWS',
         Arn: voiceConnectorArn,
       },
@@ -85,17 +91,3 @@ var callAndBridgeAction = {
     },
   },
 };
-async function parseResult(event) {
-  const intent = event.ActionData.IntentResult.Interpretations[0].Intent;
-  const slots = intent.Slots;
-  const slotsArray = Object.keys(slots);
-  let lexResult = {};
-  slotsArray.forEach((slotResponse) => {
-    lexResult[slotResponse] = slots[slotResponse].Value.InterpretedValue;
-  });
-  if (
-    event.ActionData.IntentResult.SessionState.Intent.Name === 'OpenAccount'
-  ) {
-  } else {
-  }
-}

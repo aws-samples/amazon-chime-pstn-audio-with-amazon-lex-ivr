@@ -51,7 +51,7 @@ export class Lex extends Construct {
           statements: [
             new iam.PolicyStatement({
               resources: ['*'],
-              actions: ['polly:SynthesizeSpeech', 'comprehend:DetectSentiment'],
+              actions: ['polly:SynthesizeSpeech'],
             }),
             new iam.PolicyStatement({
               resources: [lexLogGroup.logGroupArn],
@@ -225,7 +225,7 @@ export class Lex extends Construct {
         ],
       },
       botVersion: chimeLexBotVersion.getAtt('BotVersion').toString(),
-      sentimentAnalysisSettings: { DetectSentiment: true },
+      sentimentAnalysisSettings: { DetectSentiment: false },
     });
 
     const lexArn = `arn:aws:lex:${Stack.of(this).region}:${

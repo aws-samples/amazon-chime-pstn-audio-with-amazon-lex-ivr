@@ -1683,7 +1683,7 @@ ldconfig
           ],
         },
         "SentimentAnalysisSettings": Object {
-          "DetectSentiment": true,
+          "DetectSentiment": false,
         },
       },
       "Type": "AWS::Lex::BotAlias",
@@ -1958,10 +1958,7 @@ ldconfig
             "PolicyDocument": Object {
               "Statement": Array [
                 Object {
-                  "Action": Array [
-                    "polly:SynthesizeSpeech",
-                    "comprehend:DetectSentiment",
-                  ],
+                  "Action": "polly:SynthesizeSpeech",
                   "Effect": "Allow",
                   "Resource": "*",
                 },
@@ -2464,7 +2461,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "0f7e2bd79d4ec7ba090cd07eaf76431d8998f230255822117f7289f8ceba3ad1.zip",
+          "S3Key": "091d1a15ae0a03c39ff0f41f6625d994085e5935fd216fed431aafc87319a940.zip",
         },
         "Environment": Object {
           "Variables": Object {
