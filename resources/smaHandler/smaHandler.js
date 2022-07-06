@@ -3,6 +3,17 @@ var lexBotId = process.env['LEX_BOT_ID'];
 var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
 var voiceConnectorArn = process.env['VOICE_CONNECTOR_ARN'];
+var art = process.env['ART_DEPARTMENT'];
+var math = process.env['MATH_DEPARTMENT'];
+var science = process.env['SCIENCE_DEPARTMENT'];
+var history = process.env['HISTORY_DEPARTMENT'];
+
+const departments = {};
+art && (departments.art = art);
+math && (departments.math = math);
+science && (departments.science = science);
+history && (departments.history = history);
+
 exports.handler = async (event, context, callback) => {
   console.log('Lambda is invoked with calldetails:' + JSON.stringify(event));
   let actions;
@@ -20,11 +31,21 @@ exports.handler = async (event, context, callback) => {
     case 'ACTION_SUCCESSFUL':
       console.log('ACTION SUCCESSFUL');
       if (event.ActionData.Type == 'StartBotConversation') {
-        callAndBridgeAction.Parameters.CallerIdNumber =
-          event.CallDetails.Participants[0].From;
-        callAndBridgeAction.Parameters.SipHeaders['X-LexInfo'] =
-          event.ActionData.IntentResult.SessionState.Intent.Slots.Department.Value.InterpretedValue;
-        actions = [callAndBridgeAction];
+        const callerIdNumber = event.CallDetails.Participants[0].From;
+        const lexDepartment =
+          event.ActionData.IntentResult.SessionState.Intent.Slots.Department
+            .Value.InterpretedValue;
+        if (lexDepartment in departments) {
+          pstnCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
+          pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri =
+            departments[lexDepartment];
+          actions = [pstnCallAndBridgeAction];
+        } else {
+          vcCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
+          vcCallAndBridgeAction.Parameters.SipHeaders['X-Lexinfo'] =
+            lexDepartment;
+          actions = [vcCallAndBridgeAction];
+        }
         break;
       } else if (event.ActionData.Type == 'CallAndBridge') {
         break;
@@ -33,6 +54,11 @@ exports.handler = async (event, context, callback) => {
       }
     case 'HANGUP':
       console.log('HANGUP ACTION');
+      if (event.CallDetails.Participants[1]) {
+        hangupAction.Parameters.CallId =
+          event.CallDetails.Participants[1].CallId;
+        actions = [hangupAction];
+      }
       break;
     default:
       console.log('FAILED ACTION');
@@ -74,7 +100,20 @@ var startBotConversationAction = {
     },
   },
 };
-var callAndBridgeAction = {
+var pstnCallAndBridgeAction = {
+  Type: 'CallAndBridge',
+  Parameters: {
+    CallTimeoutSeconds: 30,
+    CallerIdNumber: '',
+    Endpoints: [
+      {
+        Uri: '',
+        BridgeEndpointType: 'PSTN',
+      },
+    ],
+  },
+};
+var vcCallAndBridgeAction = {
   Type: 'CallAndBridge',
   Parameters: {
     CallTimeoutSeconds: 30,
@@ -89,5 +128,12 @@ var callAndBridgeAction = {
     SipHeaders: {
       'X-LexInfo': '',
     },
+  },
+};
+var hangupAction = {
+  Type: 'Hangup',
+  Parameters: {
+    SipResponseCode: '0',
+    ParticipantTag: '',
   },
 };

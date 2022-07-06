@@ -2461,14 +2461,16 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "091d1a15ae0a03c39ff0f41f6625d994085e5935fd216fed431aafc87319a940.zip",
+          "S3Key": "ded2fa8fca0180098101049b8a1c22d970f7e4f5af3ed6b68c2d2b2ecae20bdf.zip",
         },
         "Environment": Object {
           "Variables": Object {
             "ACCOUNT_ID": Object {
               "Ref": "AWS::AccountId",
             },
+            "ART_DEPARTMENT": "",
             "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
+            "HISTORY_DEPARTMENT": "",
             "LEX_BOT_ALIAS_ID": Object {
               "Fn::GetAtt": Array [
                 "LexchimeLexBotAlias275DAEDB",
@@ -2481,6 +2483,8 @@ ldconfig
                 "Id",
               ],
             },
+            "MATH_DEPARTMENT": "",
+            "SCIENCE_DEPARTMENT": "",
             "VOICE_CONNECTOR_ARN": Object {
               "Fn::Join": Array [
                 "",

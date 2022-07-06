@@ -52,6 +52,10 @@ export class PSTNAudio extends Construct {
         LEX_BOT_ID: props.lexBotId,
         LEX_BOT_ALIAS_ID: props.lexBotAliasId,
         ACCOUNT_ID: Stack.of(this).account,
+        SCIENCE_DEPARTMENT: '',
+        ART_DEPARTMENT: '',
+        MATH_DEPARTMENT: '',
+        HISTORY_DEPARTMENT: '',
       },
     });
 

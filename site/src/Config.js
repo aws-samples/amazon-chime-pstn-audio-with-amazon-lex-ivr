@@ -1,6 +1,6 @@
 import cdkExports from './cdk-outputs.json';
 
-export const configData = cdkExports.LexContactCenter;
+export const configData = cdkExports.ChimeLexIVR;
 
 export const AmplifyConfig = {
     API: {
