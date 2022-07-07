@@ -10,7 +10,7 @@ import './App.css';
 const App = () => {
     return (
         <NorthStarThemeProvider>
-            <Header title="Amazon Chime SDK Lex Demo SIP Phone" logoPath="Chime.png" />
+            <Header title="Amazon Chime SDK Lex IVR Demo" />
             <Grid container spacing={1}>
                 <Grid>
                     <Phone />

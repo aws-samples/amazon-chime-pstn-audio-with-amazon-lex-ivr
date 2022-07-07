@@ -120,7 +120,7 @@ var vcCallAndBridgeAction = {
     CallerIdNumber: '',
     Endpoints: [
       {
-        Uri: '+18155551212',
+        Uri: '+18155550100',
         BridgeEndpointType: 'AWS',
         Arn: voiceConnectorArn,
       },

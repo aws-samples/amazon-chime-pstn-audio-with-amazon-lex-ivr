@@ -126,8 +126,8 @@ export class Asterisk extends Construct {
     const ec2Instance = new ec2.Instance(this, 'Instance', {
       vpc,
       instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T4G,
-        ec2.InstanceSize.LARGE,
+        ec2.InstanceClass.C6G,
+        ec2.InstanceSize.MEDIUM,
       ),
       machineImage: ami,
       init: ec2.CloudFormationInit.fromConfigSets({

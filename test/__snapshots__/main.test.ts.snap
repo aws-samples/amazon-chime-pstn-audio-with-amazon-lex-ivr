@@ -5,7 +5,7 @@ Object {
   "Outputs": Object {
     "password": Object {
       "Value": Object {
-        "Ref": "AsteriskInstanceDB1344623b6c887e94f5fea1",
+        "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
       },
     },
     "pstnPhoneNumber": Object {
@@ -36,7 +36,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "AsteriskInstanceDB1344623b6c887e94f5fea1",
+              "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
             },
           ],
         ],
@@ -78,7 +78,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "9ab58259097ac1249b4061ac6e823f78810b11c4c760a30324f6d012fe8e6440.zip",
+          "S3Key": "6dbd112fe448437b3438da4382c72fccbb7d2ee1543db222620d7447fffebc50.zip",
         },
         "Handler": "index.handler",
         "Role": Object {
@@ -87,7 +87,7 @@ Object {
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 120,
       },
       "Type": "AWS::Lambda::Function",
@@ -224,12 +224,12 @@ Object {
           "Ref": "AsteriskasteriskEipB136F44F",
         },
         "InstanceId": Object {
-          "Ref": "AsteriskInstanceDB1344623b6c887e94f5fea1",
+          "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "AsteriskInstanceDB1344623b6c887e94f5fea1": Object {
+    "AsteriskInstanceDB13446295e16f52905cfae4": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
@@ -269,27 +269,20 @@ writeprotect=no
 clearglobalvars=no
 
 [handler]
-exten => addheader,1,NoOP(Add \${ARG1} to SIP as X-CallId)
-same => n,Set(PJSIP_HEADER(add,X-CallId)=\${ARG1})
+exten => addheader,1,NoOP(Add \${ARG1} to SIP as X-LexInfo)
+same => n,Set(PJSIP_HEADER(add,X-LexInfo)=\${ARG1})
 
 [contact-center]
 exten => _+X.,1,NoOP(Inbound Contact Center)
 same => n,Answer()
 same => n,Wait(1)
-same => n,Set(CallId=\${RAND(10000000,99999999)})
-same => n,Dial(PJSIP/+18005551212@SMAVoiceConnector,,gb(handler^addheader^1(\${CallId})))
-same => n,Set(CALL_ROUTE=\${SHELL(curl --silent API_URLquery?xCallId=\${CallId} | jq -r .CallRoute )})
-same => n,NoOp(\${CALL_ROUTE})
-same => n,GotoIf($[\${CALL_ROUTE} = CallAgent]?callAgent:disconnect)
 same => n(callAgent),NoOp(CallAgent)
-same => n,Dial(PJSIP/agent,,b(handler^addheader^1(\${CallId})))
-same => n,Goto(disconnect)
-same => n(disconnect),NoOp(Disconnect)
+same => n,Set(LEX_INFO=\${PJSIP_HEADER(read,X-LexInfo)})
+same => n,Dial(PJSIP/agent,,b(handler^addheader^1(\${LEX_INFO})))
 same => n,Hangup()
 
-[from-voiceConnector]
+[from-sma]
 include => contact-center
-
 ",
                 "encoding": "plain",
                 "group": "root",
@@ -470,26 +463,6 @@ bind=0.0.0.0
 external_media_address=IP_ADDRESS
 external_signaling_address=IP_ADDRESS
 allow_reload=yes
-
-[PSTNVoiceConnector]
-type=endpoint
-context=from-voiceConnector
-transport=udp
-disallow=all
-allow=ulaw
-aors=PSTNVoiceConnector
-direct_media=no
-ice_support=yes
-force_rport=yes
-
-[PSTNVoiceConnector]
-type=identify
-endpoint=PSTNVoiceConnector
-match=PSTN_VOICE_CONNECTOR
-
-[PSTNVoiceConnector]
-type=aor
-contact=sip:PSTN_VOICE_CONNECTOR
 
 [SMAVoiceConnector]
 type=endpoint
@@ -680,7 +653,7 @@ ldconfig
         "ImageId": Object {
           "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmarm64gp2C96584B6F00A464EAD1953AFF4B05118Parameter",
         },
-        "InstanceType": "t4g.large",
+        "InstanceType": "c6g.medium",
         "SecurityGroupIds": Array [
           Object {
             "Fn::GetAtt": Array [
@@ -704,7 +677,7 @@ ldconfig
               "",
               Array [
                 "#!/bin/bash
-# fingerprint: 802950a3e52fab47
+# fingerprint: 8257afb52d39df62
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -715,7 +688,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB1344623b6c887e94f5fea1 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB13446295e16f52905cfae4 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -736,7 +709,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB1344623b6c887e94f5fea1 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB13446295e16f52905cfae4 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -1029,7 +1002,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/Asterisk/smaVoiceConnector/voiceConnectorRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -1049,7 +1022,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -1264,7 +1237,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "0758db37a61ce7177f50559cad0340df233a2001b5880615afa517203dd67c21.zip",
+          "S3Key": "ac9d3642b3e0626d3a6d8c4f5f56507a478c329febdf1dcfbbf7c7db9812cd30.zip",
         },
         "Description": Object {
           "Fn::Join": Array [
@@ -1286,7 +1259,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -1313,6 +1286,31 @@ ldconfig
       },
       "Type": "AWS::IAM::Role",
     },
+    "DatabasedepartmentDirectory13287858": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "AttributeDefinitions": Array [
+          Object {
+            "AttributeName": "department_name",
+            "AttributeType": "S",
+          },
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "KeySchema": Array [
+          Object {
+            "AttributeName": "department_name",
+            "KeyType": "HASH",
+          },
+        ],
+        "TableName": "Departments",
+        "TimeToLiveSpecification": Object {
+          "AttributeName": "TTL",
+          "Enabled": true,
+        },
+      },
+      "Type": "AWS::DynamoDB::Table",
+      "UpdateReplacePolicy": "Delete",
+    },
     "DatabaseinitTable29D32BF5": Object {
       "DeletionPolicy": "Delete",
       "DependsOn": Array [
@@ -1325,7 +1323,7 @@ ldconfig
             Array [
               "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
               Object {
-                "Ref": "DatabaseuserDirectoryC82077ED",
+                "Ref": "DatabasedepartmentDirectory13287858",
               },
               "_initialization\\"}}",
             ],
@@ -1362,31 +1360,6 @@ ldconfig
         ],
       },
       "Type": "AWS::IAM::Policy",
-    },
-    "DatabaseuserDirectoryC82077ED": Object {
-      "DeletionPolicy": "Delete",
-      "Properties": Object {
-        "AttributeDefinitions": Array [
-          Object {
-            "AttributeName": "department_name",
-            "AttributeType": "S",
-          },
-        ],
-        "BillingMode": "PAY_PER_REQUEST",
-        "KeySchema": Array [
-          Object {
-            "AttributeName": "department_name",
-            "KeyType": "HASH",
-          },
-        ],
-        "TableName": "Departments",
-        "TimeToLiveSpecification": Object {
-          "AttributeName": "TTL",
-          "Enabled": true,
-        },
-      },
-      "Type": "AWS::DynamoDB::Table",
-      "UpdateReplacePolicy": "Delete",
     },
     "LexLexResourcePolicy80A19810": Object {
       "Properties": Object {
@@ -1504,25 +1477,10 @@ ldconfig
                 "FulfillmentCodeHook": Object {
                   "Enabled": true,
                 },
-                "IntentClosingSetting": Object {
-                  "ClosingResponse": Object {
-                    "AllowInterrupt": false,
-                    "MessageGroupsList": Array [
-                      Object {
-                        "Message": Object {
-                          "PlainTextMessage": Object {
-                            "Value": "Dialing your extension.",
-                          },
-                        },
-                      },
-                    ],
-                  },
-                  "IsActive": true,
-                },
                 "Name": "RouteCall",
                 "OutputContexts": Array [
                   Object {
-                    "Name": "extensionToDial",
+                    "Name": "departmentToCall",
                     "TimeToLiveInSeconds": 90,
                     "TurnsToLive": 5,
                   },
@@ -1806,12 +1764,12 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "d96e40670d8ed4b5ff112eda7a0779f43beaad712972b1327365abac77b3b646.zip",
+          "S3Key": "7f618720ad07dcd4d8f548b5e528af902d172a4dae40355225e913e58486e06c.zip",
         },
         "Environment": Object {
           "Variables": Object {
-            "USER_DIRECTORY_TABLE": Object {
-              "Ref": "DatabaseuserDirectoryC82077ED",
+            "DEPARTMENT_TABLE": Object {
+              "Ref": "DatabasedepartmentDirectory13287858",
             },
           },
         },
@@ -1910,7 +1868,7 @@ ldconfig
               "Resource": Array [
                 Object {
                   "Fn::GetAtt": Array [
-                    "DatabaseuserDirectoryC82077ED",
+                    "DatabasedepartmentDirectory13287858",
                     "Arn",
                   ],
                 },
@@ -2048,7 +2006,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/pstnPhoneNumber/ChimePhoneNumber/PSTNResourceProvider)",
         "Environment": Object {
@@ -2068,7 +2026,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -2177,7 +2135,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/sipMediaApp/sipMediaAppRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -2197,7 +2155,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -2312,7 +2270,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "eaeb69bc290b516fe3b049f89d6118b22249df682fbabf56af300cf345198574.zip",
+          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/sipRule/sipRuleRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -2332,7 +2290,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "nodejs12.x",
+        "Runtime": "nodejs14.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -2461,7 +2419,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ded2fa8fca0180098101049b8a1c22d970f7e4f5af3ed6b68c2d2b2ecae20bdf.zip",
+          "S3Key": "813d32c8209e17095cc79fc9f7dec19cc1489e5090784d7201a71473b6128bc4.zip",
         },
         "Environment": Object {
           "Variables": Object {

@@ -8,7 +8,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 interface LexProps {
-  userDirectory: dynamodb.Table;
+  departmentDirectory: dynamodb.Table;
 }
 
 export class Lex extends Construct {
@@ -27,11 +27,11 @@ export class Lex extends Construct {
       architecture: lambda.Architecture.ARM_64,
       timeout: Duration.minutes(1),
       environment: {
-        USER_DIRECTORY_TABLE: props.userDirectory.tableName,
+        DEPARTMENT_TABLE: props.departmentDirectory.tableName,
       },
     });
 
-    props.userDirectory.grantReadWriteData(lexCodeHook);
+    props.departmentDirectory.grantReadWriteData(lexCodeHook);
 
     const lexLogGroup = new logs.LogGroup(this, 'lexLogGroup', {
       retention: logs.RetentionDays.ONE_WEEK,
@@ -101,26 +101,26 @@ export class Lex extends Construct {
               },
               outputContexts: [
                 {
-                  name: 'extensionToDial',
+                  name: 'departmentToCall',
                   timeToLiveInSeconds: 90,
                   turnsToLive: 5,
                 },
               ],
-              intentClosingSetting: {
-                closingResponse: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value: 'Dialing your extension.',
-                        },
-                      },
-                    },
-                  ],
-                  allowInterrupt: false,
-                },
-                isActive: true,
-              },
+              // intentClosingSetting: {
+              //   closingResponse: {
+              //     messageGroupsList: [
+              //       {
+              //         message: {
+              //           plainTextMessage: {
+              //             value: 'Dialing your extension.',
+              //           },
+              //         },
+              //       },
+              //     ],
+              //     allowInterrupt: false,
+              //   },
+              //   isActive: true,
+              // },
               slots: [
                 {
                   name: 'Department',

@@ -9,11 +9,11 @@ try:
     log_level = os.environ["LogLevel"]
     if log_level not in ["INFO", "DEBUG"]:
         log_level = "INFO"
-except:
+except BaseException:
     log_level = "INFO"
 logger.setLevel(log_level)
 
-user_directory_table = os.environ["USER_DIRECTORY_TABLE"]
+department_table = os.environ["DEPARTMENT_TABLE"]
 
 client_config = Config(connect_timeout=2, read_timeout=2, retries={"max_attempts": 5})
 dynamodb_client = boto3.client("dynamodb", config=client_config, region_name=os.environ["AWS_REGION"])
@@ -27,10 +27,10 @@ def get_department(department_name):
                     "S": str(department_name),
                 },
             },
-            TableName=user_directory_table,
+            TableName=department_table,
         )
         if "Item" in response:
-            return response["Item"]["department_name"]["S"]
+            return True
         else:
             return False
     except Exception as err:
@@ -149,7 +149,7 @@ def RouteCall(intent_request):
         return close(session_attributes, "RouteCall", fulfillment_state, message)
     else:
         session_attributes = {}
-        try_ex(lambda: slots.pop("phoneNumber"))
+        try_ex(lambda: slots.pop("Department"))
         return elicit_slot(
             session_attributes,
             intent_request["sessionState"]["intent"]["name"],

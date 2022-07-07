@@ -14,20 +14,15 @@ const LexData = () => {
     useEffect(() => {
         const phoneStoreUnsubscribe = phoneStore.subscribe(() => {
             const phoneStoreState = phoneStore.getState();
-            const phoneStoreStateSipSessions = phoneStoreState.sipSessions;
-            const phoneStoreStateSipSessionsStateChanged = phoneStoreStateSipSessions.stateChanged;
+            const phoneStoreStateSipSessionsStateChanged = phoneStoreState.sipSessions.stateChanged;
             if (phoneStoreStateSipSessionsStateChanged !== null) {
-                const phoneStoreState = phoneStore.getState();
                 const phoneStoreStateSipSessions = phoneStoreState.sipSessions.sessions;
                 const incomingCallId = Object.keys(phoneStoreStateSipSessions)[0];
                 if (incomingCallId) {
-                    console.log(`sessionStateChanged -> incomingCallId: `, incomingCallId);
-                    const currentSession = phoneStoreStateSipSessions[incomingCallId];
-                    console.log(`onIncomingCall -> currentSession `, currentSession);
-                    const incomingInviteRequest = currentSession.incomingInviteRequest;
-                    const inviteHeaders = incomingInviteRequest.message.headers;
-                    console.log(`onIncomingCall -> inviteHeaders `, inviteHeaders);
-                    const xLexInfo = inviteHeaders['X-Lexinfo']?.[0]?.['raw'];
+                    const xLexInfo =
+                        phoneStoreStateSipSessions[incomingCallId].incomingInviteRequest.message.headers[
+                            'X-Lexinfo'
+                        ]?.[0]?.['raw'];
                     console.log(`onIncomingCall -> xLexInfo:`, xLexInfo);
                     setLexDepartment(xLexInfo);
                 }

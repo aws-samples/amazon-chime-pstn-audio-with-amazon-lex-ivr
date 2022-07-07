@@ -6,7 +6,9 @@ export class ChimeLexIVR extends Stack {
   constructor(scope: Construct, id: string, props: StackProps = {}) {
     super(scope, id, props);
     const database = new Database(this, 'Database');
-    const lex = new Lex(this, 'Lex', { userDirectory: database.userDirectory });
+    const lex = new Lex(this, 'Lex', {
+      departmentDirectory: database.departmentDirectory,
+    });
 
     const asterisk = new Asterisk(this, 'Asterisk');
 

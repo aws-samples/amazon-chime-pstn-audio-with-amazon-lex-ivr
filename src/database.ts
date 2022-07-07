@@ -4,12 +4,12 @@ import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 
 export class Database extends Construct {
-  public readonly userDirectory: dynamodb.Table;
+  public readonly departmentDirectory: dynamodb.Table;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.userDirectory = new dynamodb.Table(this, 'userDirectory', {
+    this.departmentDirectory = new dynamodb.Table(this, 'departmentDirectory', {
       tableName: 'Departments',
       partitionKey: {
         name: 'department_name',
@@ -51,7 +51,7 @@ export class Database extends Construct {
           },
         },
         physicalResourceId: cr.PhysicalResourceId.of(
-          this.userDirectory.tableName + '_initialization',
+          this.departmentDirectory.tableName + '_initialization',
         ),
       },
       policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
