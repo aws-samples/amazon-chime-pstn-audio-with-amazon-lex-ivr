@@ -1,4 +1,5 @@
 import { Duration, Stack } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -9,6 +10,7 @@ interface PSTNAudioProps {
   readonly smaVoiceConnectorArn: string;
   readonly lexBotId: string;
   readonly lexBotAliasId: string;
+  departmentDirectory: dynamodb.Table;
 }
 
 export class PSTNAudio extends Construct {
@@ -41,7 +43,7 @@ export class PSTNAudio extends Construct {
     this.smaHandlerLambda = new NodejsFunction(this, 'smaHandlerLambda', {
       entry: './resources/smaHandler/smaHandler.js',
       bundling: {
-        externalModules: ['aws-sdk'],
+        nodeModules: ['@aws-sdk/client-dynamodb', '@aws-sdk/lib-dynamodb'],
       },
       runtime: Runtime.NODEJS_16_X,
       role: smaHandlerRole,
@@ -52,12 +54,11 @@ export class PSTNAudio extends Construct {
         LEX_BOT_ID: props.lexBotId,
         LEX_BOT_ALIAS_ID: props.lexBotAliasId,
         ACCOUNT_ID: Stack.of(this).account,
-        SCIENCE_DEPARTMENT: '',
-        ART_DEPARTMENT: '',
-        MATH_DEPARTMENT: '',
-        HISTORY_DEPARTMENT: '',
+        REGION: Stack.of(this).region,
+        DEPARTMENT_DIRECTORY: props.departmentDirectory.tableName,
       },
     });
+    props.departmentDirectory.grantReadData(this.smaHandlerLambda);
 
     this.pstnPhoneNumber = new chime.ChimePhoneNumber(this, 'pstnPhoneNumber', {
       phoneState: 'IL',

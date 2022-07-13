@@ -4,7 +4,7 @@ import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 
 export class Database extends Construct {
-  public readonly departmentDirectory: dynamodb.Table;
+  public departmentDirectory: dynamodb.Table;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -29,22 +29,38 @@ export class Database extends Construct {
             Departments: [
               {
                 PutRequest: {
-                  Item: { department_name: { S: 'science' } },
+                  Item: {
+                    department_name: { S: 'science' },
+                    service: { S: 'voiceConnector' },
+                    number: { S: '+5550100' },
+                  },
                 },
               },
               {
                 PutRequest: {
-                  Item: { department_name: { S: 'art' } },
+                  Item: {
+                    department_name: { S: 'art' },
+                    service: { S: 'voiceConnector' },
+                    number: { S: '+5550101' },
+                  },
                 },
               },
               {
                 PutRequest: {
-                  Item: { department_name: { S: 'history' } },
+                  Item: {
+                    department_name: { S: 'history' },
+                    service: { S: 'voiceConnector' },
+                    number: { S: '+5550102' },
+                  },
                 },
               },
               {
                 PutRequest: {
-                  Item: { department_name: { S: 'math' } },
+                  Item: {
+                    department_name: { S: 'math' },
+                    service: { S: 'voiceConnector' },
+                    number: { S: '+5550103' },
+                  },
                 },
               },
             ],

@@ -16,6 +16,7 @@ export class ChimeLexIVR extends Stack {
       smaVoiceConnectorArn: asterisk.smaVoiceConnectorArn,
       lexBotId: lex.lexBotId,
       lexBotAliasId: lex.lexBotAliasId,
+      departmentDirectory: database.departmentDirectory,
     });
 
     new CfnOutput(this, 'pstnPhoneNumber', {

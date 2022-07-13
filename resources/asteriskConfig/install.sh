@@ -6,11 +6,6 @@ yum -y install make gcc gcc-c++ make subversion libxml2-devel ncurses-devel open
 wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-18-current.tar.gz
 tar xvzf asterisk-18-current.tar.gz 
 cd asterisk-18*/
-git clone https://github.com/drivefast/asterisk-res_json.git
-./asterisk-res_json/install.sh
-sed -i '35 i \            res_json \\' addons/Makefile
-sed -i '39 i res_json.so: cJSON.o res_json.o' addons/Makefile
-sed -i '4 i \                LINKER_SYMBOL_PREFIXcJSON_*;' main/asterisk.exports.in
 ./configure --libdir=/usr/lib64 --with-jansson-bundled
 make menuselect.makeopts
 menuselect/menuselect \

@@ -5,7 +5,7 @@ Object {
   "Outputs": Object {
     "password": Object {
       "Value": Object {
-        "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
+        "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
       },
     },
     "pstnPhoneNumber": Object {
@@ -36,7 +36,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
+              "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
             },
           ],
         ],
@@ -224,12 +224,12 @@ Object {
           "Ref": "AsteriskasteriskEipB136F44F",
         },
         "InstanceId": Object {
-          "Ref": "AsteriskInstanceDB13446295e16f52905cfae4",
+          "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "AsteriskInstanceDB13446295e16f52905cfae4": Object {
+    "AsteriskInstanceDB134462dfc91838b9f81525": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
@@ -248,7 +248,7 @@ Object {
                 "command": "chmod +x /etc/config_asterisk.sh",
               },
               "001": Object {
-                "command": "/etc/config_asterisk.sh",
+                "command": "/etc/config_asterisk.sh 2>&1 | tee /var/log/asterisk_config.log",
               },
             },
             "files": Object {
@@ -262,8 +262,7 @@ rungroup = asterisk",
                 "owner": "root",
               },
               "/etc/asterisk/extensions.conf": Object {
-                "content": "; extensions.conf - the Asterisk dial plan
-[general]
+                "content": "[general]
 static=yes
 writeprotect=no
 clearglobalvars=no
@@ -276,13 +275,23 @@ same => n,Set(PJSIP_HEADER(add,X-LexInfo)=\${ARG1})
 exten => _+X.,1,NoOP(Inbound Contact Center)
 same => n,Answer()
 same => n,Wait(1)
-same => n(callAgent),NoOp(CallAgent)
+
+same => n,Verbose(Get device status \${DEVICE_STATE(PJSIP/agent)})
 same => n,Set(LEX_INFO=\${PJSIP_HEADER(read,X-LexInfo)})
+same => n,GotoIf($[\${DEVICE_STATE(PJSIP/agent)}=UNAVAILABLE]?playAudio:callAgent)
+
+same => n(callAgent),NoOp(CallAgent)
 same => n,Dial(PJSIP/agent,,b(handler^addheader^1(\${LEX_INFO})))
 same => n,Hangup()
 
+same => n(playAudio),NoOp(PlayAudio)
+same => n,Playback(\${LEX_INFO})
+same => n,Hangup()
+
+
 [from-sma]
 include => contact-center
+
 ",
                 "encoding": "plain",
                 "group": "root",
@@ -532,14 +541,79 @@ sed -i \\"s/INSTANCE_ID/$INSTANCE_ID/g\\" /etc/asterisk/pjsip.conf
 sed -i \\"s/PSTN_VOICE_CONNECTOR/$PSTN_VOICE_CONNECTOR/g\\" /etc/asterisk/pjsip.conf
 sed -i \\"s/SMA_VOICE_CONNECTOR/$SMA_VOICE_CONNECTOR/g\\" /etc/asterisk/pjsip.conf
 
+cd /etc/polly/
+pip3 install boto3
+
+python3 /etc/polly/createWav.py -file science -text 'Thank you for calling science department. Goodbye.'
+python3 /etc/polly/createWav.py -file art -text 'Thank you for calling art department. Goodbye.'
+python3 /etc/polly/createWav.py -file history -text 'Thank you for calling history department. Goodbye.'
+python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
+
 groupadd asterisk
 useradd -r -d /var/lib/asterisk -g asterisk asterisk
 usermod -aG audio,dialout asterisk
 chown -R asterisk.asterisk /etc/asterisk
+chown -R asterisk.asterisk /var/lib/asterisk/sounds/en
 chown -R asterisk.asterisk /var/{lib,log,spool}/asterisk
 
 systemctl start asterisk
 
+",
+                "encoding": "plain",
+                "group": "root",
+                "mode": "000644",
+                "owner": "root",
+              },
+              "/etc/polly/createWav.py": Object {
+                "content": "import boto3
+import os
+import wave
+import argparse
+import sys
+from botocore.config import Config
+
+config = Config(
+    region_name='us-east-1')
+
+polly = boto3.client('polly', config=config)
+
+
+def createPolly(pollyText, fileName):
+    response = polly.synthesize_speech(
+        OutputFormat='pcm',
+        Text=pollyText,
+        SampleRate='8000',
+        VoiceId='Joanna'
+    )
+
+    if 'AudioStream' in response:
+        outputWav = '/var/lib/asterisk/sounds/en/' + fileName + '.wav'
+        with wave.open(outputWav, 'wb') as wav_file:
+            wav_file.setparams((1, 2, 8000, 0, 'NONE', 'NONE'))
+            wav_file.writeframes(response['AudioStream'].read())
+
+    return outputWav
+
+
+parse_msg = 'Simple utility to create wav files for SMA via Polly'
+parser = argparse.ArgumentParser(prog='createWav.py', description=parse_msg)
+parser.add_argument('-file', help='Name of file to be created (without .wav)')
+parser.add_argument('-text', help='Text of the audio to be created in quotes')
+args = parser.parse_args()
+
+fileName = args.file
+pollyText = args.text
+
+if not fileName:
+    print('Filename is rquired')
+    sys.exit()
+
+if not pollyText:
+    print('Text is required')
+    sys.exit()
+
+wavFile = createPolly(pollyText, fileName)
+print('wav file created: ' + wavFile)
 ",
                 "encoding": "plain",
                 "group": "root",
@@ -603,11 +677,6 @@ yum -y install make gcc gcc-c++ make subversion libxml2-devel ncurses-devel open
 wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-18-current.tar.gz
 tar xvzf asterisk-18-current.tar.gz 
 cd asterisk-18*/
-git clone https://github.com/drivefast/asterisk-res_json.git
-./asterisk-res_json/install.sh
-sed -i '35 i \\\\            res_json \\\\\\\\' addons/Makefile
-sed -i '39 i res_json.so: cJSON.o res_json.o' addons/Makefile
-sed -i '4 i \\\\                LINKER_SYMBOL_PREFIXcJSON_*;' main/asterisk.exports.in
 ./configure --libdir=/usr/lib64 --with-jansson-bundled
 make menuselect.makeopts
 menuselect/menuselect \\\\
@@ -677,7 +746,7 @@ ldconfig
               "",
               Array [
                 "#!/bin/bash
-# fingerprint: 8257afb52d39df62
+# fingerprint: 54aafe52cfea780c
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -688,7 +757,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB13446295e16f52905cfae4 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB134462dfc91838b9f81525 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -709,7 +778,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB13446295e16f52905cfae4 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB134462dfc91838b9f81525 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -958,6 +1027,21 @@ ldconfig
                 ":iam::aws:policy/AmazonSSMManagedInstanceCore",
               ],
             ],
+          },
+        ],
+        "Policies": Array [
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": "polly:SynthesizeSpeech",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "pollyPolicy",
           },
         ],
       },
@@ -1321,7 +1405,7 @@ ldconfig
           "Fn::Join": Array [
             "",
             Array [
-              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
+              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550100\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550101\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550102\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550103\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
               Object {
                 "Ref": "DatabasedepartmentDirectory13287858",
               },
@@ -2409,6 +2493,7 @@ ldconfig
     },
     "PSTNAudiosmaHandlerLambdaEFDBCC2B": Object {
       "DependsOn": Array [
+        "PSTNAudiosmaHandlerRoleDefaultPolicyD83C2F6B",
         "PSTNAudiosmaHandlerRoleCCE86127",
       ],
       "Properties": Object {
@@ -2419,16 +2504,17 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "813d32c8209e17095cc79fc9f7dec19cc1489e5090784d7201a71473b6128bc4.zip",
+          "S3Key": "c75e67df18b1ad0e923e82dc0592116bc44f09100cf481061029b65314ec1935.zip",
         },
         "Environment": Object {
           "Variables": Object {
             "ACCOUNT_ID": Object {
               "Ref": "AWS::AccountId",
             },
-            "ART_DEPARTMENT": "",
             "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
-            "HISTORY_DEPARTMENT": "",
+            "DEPARTMENT_DIRECTORY": Object {
+              "Ref": "DatabasedepartmentDirectory13287858",
+            },
             "LEX_BOT_ALIAS_ID": Object {
               "Fn::GetAtt": Array [
                 "LexchimeLexBotAlias275DAEDB",
@@ -2441,8 +2527,9 @@ ldconfig
                 "Id",
               ],
             },
-            "MATH_DEPARTMENT": "",
-            "SCIENCE_DEPARTMENT": "",
+            "REGION": Object {
+              "Ref": "AWS::Region",
+            },
             "VOICE_CONNECTOR_ARN": Object {
               "Fn::Join": Array [
                 "",
@@ -2524,6 +2611,46 @@ ldconfig
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "PSTNAudiosmaHandlerRoleDefaultPolicyD83C2F6B": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "DatabasedepartmentDirectory13287858",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "PSTNAudiosmaHandlerRoleDefaultPolicyD83C2F6B",
+        "Roles": Array [
+          Object {
+            "Ref": "PSTNAudiosmaHandlerRoleCCE86127",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "PSTNResources1DB9F314": Object {
       "DependsOn": Array [

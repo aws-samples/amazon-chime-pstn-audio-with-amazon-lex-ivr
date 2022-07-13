@@ -1,19 +1,42 @@
-// resources/smaHandler/smaHandler.js
 var lexBotId = process.env['LEX_BOT_ID'];
 var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
 var voiceConnectorArn = process.env['VOICE_CONNECTOR_ARN'];
-var art = process.env['ART_DEPARTMENT'];
-var math = process.env['MATH_DEPARTMENT'];
-var science = process.env['SCIENCE_DEPARTMENT'];
-var history = process.env['HISTORY_DEPARTMENT'];
+var departmentDirectory = process.env['DEPARTMENT_DIRECTORY'];
+var REGION = process.env['REGION'];
 
-const departments = {};
-art && (departments.art = art);
-math && (departments.math = math);
-science && (departments.science = science);
-history && (departments.history = history);
+import { GetCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
+const ddbClient = new DynamoDBClient({ region: REGION });
+const marshallOptions = {
+  convertEmptyValues: false,
+  removeUndefinedValues: true,
+  convertClassInstanceToMap: false,
+};
+
+const unmarshallOptions = { wrapNumbers: false };
+const translateConfig = { marshallOptions, unmarshallOptions };
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
+
+async function getRoute(department) {
+  const params = {
+    TableName: departmentDirectory,
+    Key: {
+      department_name: department,
+    },
+  };
+  try {
+    console.log(
+      `Getting department: ${department} from ${departmentDirectory}`,
+    );
+    const data = await ddbDocClient.send(new GetCommand(params));
+    console.log(`Success - ${JSON.stringify(data)}`);
+    return data.Item;
+  } catch (err) {
+    console.log(`Error: ${err}`);
+  }
+}
 exports.handler = async (event, context, callback) => {
   console.log('Lambda is invoked with calldetails:' + JSON.stringify(event));
   let actions;
@@ -35,16 +58,17 @@ exports.handler = async (event, context, callback) => {
         const lexDepartment =
           event.ActionData.IntentResult.SessionState.Intent.Slots.Department
             .Value.InterpretedValue;
-        if (lexDepartment in departments) {
-          pstnCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
-          pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri =
-            departments[lexDepartment];
-          actions = [pstnCallAndBridgeAction];
-        } else {
+        const route = await getRoute(lexDepartment);
+        if (route.service == 'voiceConnector') {
           vcCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
-          vcCallAndBridgeAction.Parameters.SipHeaders['X-Lexinfo'] =
+          vcCallAndBridgeAction.Parameters.SipHeaders['X-LexInfo'] =
             lexDepartment;
+          vcCallAndBridgeAction.Parameters.Endpoints[0].Uri = route.number;
           actions = [vcCallAndBridgeAction];
+        } else {
+          pstnCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
+          pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri = route.number;
+          actions = [pstnCallAndBridgeAction];
         }
         break;
       } else if (event.ActionData.Type == 'CallAndBridge') {
@@ -120,7 +144,7 @@ var vcCallAndBridgeAction = {
     CallerIdNumber: '',
     Endpoints: [
       {
-        Uri: '+18155550100',
+        Uri: '',
         BridgeEndpointType: 'AWS',
         Arn: voiceConnectorArn,
       },

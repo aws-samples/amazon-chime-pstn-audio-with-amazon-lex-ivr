@@ -94,6 +94,16 @@ export class Asterisk extends Construct {
 
     const asteriskEc2Role = new iam.Role(this, 'asteriskEc2Role', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+      inlinePolicies: {
+        ['pollyPolicy']: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              resources: ['*'],
+              actions: ['polly:SynthesizeSpeech'],
+            }),
+          ],
+        }),
+      },
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName(
           'AmazonSSMManagedInstanceCore',
@@ -184,8 +194,14 @@ export class Asterisk extends Construct {
               '/etc/config_asterisk.sh',
               './resources/asteriskConfig/config_asterisk.sh',
             ),
+            ec2.InitFile.fromFileInline(
+              '/etc/polly/createWav.py',
+              './resources/asteriskConfig/createWav.py',
+            ),
             ec2.InitCommand.shellCommand('chmod +x /etc/config_asterisk.sh'),
-            ec2.InitCommand.shellCommand('/etc/config_asterisk.sh'),
+            ec2.InitCommand.shellCommand(
+              '/etc/config_asterisk.sh 2>&1 | tee /var/log/asterisk_config.log',
+            ),
           ]),
         },
       }),

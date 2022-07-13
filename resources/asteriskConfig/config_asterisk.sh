@@ -12,10 +12,19 @@ sed -i "s/INSTANCE_ID/$INSTANCE_ID/g" /etc/asterisk/pjsip.conf
 sed -i "s/PSTN_VOICE_CONNECTOR/$PSTN_VOICE_CONNECTOR/g" /etc/asterisk/pjsip.conf
 sed -i "s/SMA_VOICE_CONNECTOR/$SMA_VOICE_CONNECTOR/g" /etc/asterisk/pjsip.conf
 
+cd /etc/polly/
+pip3 install boto3
+
+python3 /etc/polly/createWav.py -file science -text 'Thank you for calling science department. Goodbye.'
+python3 /etc/polly/createWav.py -file art -text 'Thank you for calling art department. Goodbye.'
+python3 /etc/polly/createWav.py -file history -text 'Thank you for calling history department. Goodbye.'
+python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
+
 groupadd asterisk
 useradd -r -d /var/lib/asterisk -g asterisk asterisk
 usermod -aG audio,dialout asterisk
 chown -R asterisk.asterisk /etc/asterisk
+chown -R asterisk.asterisk /var/lib/asterisk/sounds/en
 chown -R asterisk.asterisk /var/{lib,log,spool}/asterisk
 
 systemctl start asterisk
