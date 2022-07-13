@@ -2,15 +2,15 @@
 
 ![Overview](images/Amazon_Chime_PSTN_Audio_Lex_IVR.png)
 
-This demo will show how you can deploy a simple Interactive Voice Response (IVR) with Amazon Lex that can intelligently route calls between multiple systems using Amazon Chime PSTN Audio.
+This demo will show how you can deploy a simple Interactive Voice Response (IVR) with [Amazon Lex](https://docs.aws.amazon.com/lex/latest/dg/what-is.html) that can intelligently route calls between multiple systems using the [Amazon Chime SDK PSTN Audio service](https://docs.aws.amazon.com/chime-sdk/latest/dg/build-lambdas-for-sip-sdk.html).
 
-This demo assumes intermediary to advanced knowledge of Amazon Chime SDK PSTN Audio. See [here](https://docs.aws.amazon.com/chime-sdk/latest/dg/build-lambdas-for-sip-sdk.html) for background information on how Amazon Chime SDK PSTN Audio works. A basic workshop for Amazon Chime SDK PSTN Audio can be found [here](https://catalog.us-east-1.prod.workshops.aws/workshops/30bd753c-9563-4c7c-8d1a-75460642550c/en-US).
+This demo assumes intermediate to advanced knowledge of the Amazon Chime SDK PSTN Audio service. An introductory workshop, Building Telephony-Powered Applications with the Amazon Chime SDK PSTN Audio Service can be found [here](https://catalog.us-east-1.prod.workshops.aws/workshops/30bd753c-9563-4c7c-8d1a-75460642550c/en-US).
 
-This demo differs slightly from the previous Amazon Lex + Amazon Chime SDK [demo](https://github.com/aws-samples/amazon-chime-pstn-audio-with-amazon-lex) by offering a new call flow and simplifying the configuration required by the SIP endpoints. In this demo, the SIP endpoints are not required to query a database to extract information from the call, but can capture it directly from the SIP headers included.
+This demo differs slightly from the previous Amazon Lex + Amazon Chime SDK [demo](https://github.com/aws-samples/amazon-chime-pstn-audio-with-amazon-lex) by offering a new call flow and simplifying the configuration required by the SIP endpoints. In this demo, the SIP endpoints are not required to query a database to extract information from the call, but can capture it directly from the SIP headers sent by the Amazon Chime SDK PSTN audio service through Amazon Chime Voice Connector.
 
 ## What It Does
 
-This demo will a fully working IVR that you can configure to route calls to either a Public Switched Telephone Network (PSTN) number or directly to an Amazon Chime SDK Voice Connector. This routing decision will be made based on the information passed from the Amazon Lex to the Amazon Chime SDK SIP media application. Calls routed to an Amazon Chime SDK Voice Connector will contain additional session inition protocol (SIP) headers to pass information to the SIP user agent.
+This demo will deploy a fully working IVR that you can configure to route calls to either a Public Switched Telephone Network (PSTN) number or directly to an Amazon Chime SDK Voice Connector. This routing decision will be made based on the information passed from the Amazon Lex bot to the Amazon Chime SDK SIP media application. Calls routed to an Amazon Chime Voice Connector will contain additional Session Initiation Protocol (SIP) headers to pass information to the SIP user agent.
 
 ## How It Works
 
@@ -23,7 +23,7 @@ Outputs:
 ChimeLexIVR.pstnPhoneNumber = +1NPANXXXXXX
 ```
 
-When this number is called, it will be delivered to an Amazon Chime SDK PSTN Audio SIP media application. This SIP media application will answer the call and connect to an Amazon Lex bot.
+When this number is called, it will be delivered to an Amazon Chime SDK PSTN Audio SIP media application. When the SIP media application answers, the [startBotConversation](https://docs.aws.amazon.com/chime-sdk/latest/dg/start-bot-conversation.html) action will connect the call to an Amazon Lex bot.
 
 ```javascript
 exports.handler = async (event, context, callback) => {
@@ -40,7 +40,7 @@ exports.handler = async (event, context, callback) => {
 
 ### Amazon Lex Bot Processing
 
-For background information on Amazon Lex, see [here](https://aws.amazon.com/lex/faqs/).
+For background information on Amazon Lex and the terminology and features used in this demo, please see [Amazon Lex: How It Works](https://docs.aws.amazon.com/lex/latest/dg/how-it-works.html).
 
 When the Amazon Lex Bot is engaged, it is looking for a single Intent to fill with the following Sample utterances:
 
@@ -50,7 +50,7 @@ When one of these utterances is captured, the `RouteCall` Intent will be used an
 
 ![Slots](images/Department.png)
 
-Because the Slot is captured as part of the sample Utterances, this will be fullfilled as soon as the Intent is invoked. However, the Amazon Lex Bot will need to verify that the Department spoken is a valid department. In order to do this, an optional code hook is used to perform validation. This code hook is an associated AWS Lambda function that will be exexcuted at every turn of the conversation.
+Because the Slot is captured as part of the sample Utterances, this will be fulfilled as soon as the Intent is invoked. However, the Amazon Lex Bot will need to verify that the Department spoken is a valid department. In order to do this, an optional code hook is used to perform validation. This code hook is an associated AWS Lambda function that will be executed at every turn of the conversation.
 
 ![Validation](images/Validation.png)
 
@@ -181,13 +181,13 @@ However, if the DynamoDB query fails because the name spoken does not exist in t
 }
 ```
 
-This will cause the Lex bot to attempt to fullfill the `Department` slot again and prompt the caller with the `What department are you looking for?` message.
+This will cause the Lex bot to attempt to fulfill the `Department` slot again and prompt the caller with the `What department are you looking for?` message.
 
 ### Return to SIP media application
 
-Once the `RouteCall` intent has been fulfilled in the Amazon Lex bot, the information will be returned to the Amazon Chime SDK SIP media application and associated AWS Lambda will be invoked with an `InvocationEventType: ACTION_SUCCESSFUL` with `Type: StartBotConversation` indicating that the Amazon Lex processing was completed successfully.
+Once the `RouteCall` intent has been fulfilled in the Amazon Lex bot, the information will be returned to the Amazon Chime SDK SIP media application and the associated AWS Lambda function will be invoked with an `InvocationEventType: ACTION_SUCCESSFUL` with `Type: StartBotConversation` indicating that the Amazon Lex processing was completed successfully.
 
-This will result in the associated AWS Lambda [function](resources/smaHandler/smaHandler.js) determining how to route the call:
+The associated AWS Lambda [function](resources/smaHandler/smaHandler.js) will then use the information it received to determine how to route the call:
 
 ```javascript
     case 'ACTION_SUCCESSFUL':
@@ -227,7 +227,7 @@ science && (departments.science = science);
 history && (departments.history = history);
 ```
 
-When the SIP media application Lambda is invoked with the information from Lex, the intepreted value will be extracted from the JSON.
+When the SIP media application Lambda is invoked with the information from Lex, the interpreted value will be extracted from the JSON.
 
 ```json
             "SessionState": {
@@ -256,7 +256,7 @@ If the environment variables `HISTORY_DEPARTMENT` has been configured with an E.
 
 ### vcCallAndBridgeAction
 
-The `vcCallAndBridgeAction` and `pstnCallAndBridgeAction` will both bridge calls, however, the `vcCallAndBridgeAction` will allow you to send calls to an Amazon Chime SDK Voice Connector instead of a PSTN number. This will allow you to send additional SIP headers in the INVITE.
+The `vcCallAndBridgeAction` and `pstnCallAndBridgeAction` will both bridge calls, however, the `vcCallAndBridgeAction` will allow you to send calls to an Amazon Chime Voice Connector instead of a PSTN number. This will allow you to send additional SIP headers in the INVITE.
 
 ```javascript
 {
@@ -284,7 +284,7 @@ The `vcCallAndBridgeAction` and `pstnCallAndBridgeAction` will both bridge calls
 }
 ```
 
-In this example, the call is placed to `+18155550100` (a number not publically routed) and delivered to an Amazon Chime SDK Voice Connector which will deliver the call to the associated host.
+In this example, the call is placed to `+18155550100` (a number not publicly routed) and delivered to an Amazon Chime Voice Connector which will deliver the call to the associated host.
 
 ![VoiceConnector](images/VoiceConnector.png)
 
@@ -317,9 +317,9 @@ X-Amzn-TargetArn: arn:aws:chime:us-east-1:104621577074:vc/ehwryzdm9hy4u6rrud7jym
 
 ### Requirements
 
-- [Nodev12+](https://nodejs.org/en/download/) installed
+- [Node JS v12+](https://nodejs.org/en/download/) installed
 - [yarn](https://yarnpkg.com/getting-started/install) installed
-- AWS Account with approriate permissions
+- AWS Account with appropriate permissions
 - [Service Quota](https://us-east-1.console.aws.amazon.com/servicequotas/home/services/chime/quotas) allowance for Phone Numbers
 
 ### Deployment
