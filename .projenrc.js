@@ -19,7 +19,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     allowedUsernames: ['schuettc'],
   },
   autoApproveUpgrades: true,
-  devDeps: ['@types/prettier@2.6.0'],
+  devDeps: ['@types/prettier@2.6.0', 'esbuild'],
   deps: ['cdk-amazon-chime-resources'],
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   defaultReleaseBranch: 'main',

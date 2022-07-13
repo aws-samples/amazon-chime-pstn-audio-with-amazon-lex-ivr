@@ -1405,7 +1405,7 @@ ldconfig
           "Fn::Join": Array [
             "",
             Array [
-              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550100\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550101\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550102\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"+5550103\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
+              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600100\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600200\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600300\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600400\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
               Object {
                 "Ref": "DatabasedepartmentDirectory13287858",
               },
@@ -2504,7 +2504,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c75e67df18b1ad0e923e82dc0592116bc44f09100cf481061029b65314ec1935.zip",
+          "S3Key": "30fc62133a5666be82a3dc339da0d841dd75282cfe72ac7aac2766083263faba.zip",
         },
         "Environment": Object {
           "Variables": Object {

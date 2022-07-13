@@ -32,7 +32,7 @@ export class Database extends Construct {
                   Item: {
                     department_name: { S: 'science' },
                     service: { S: 'voiceConnector' },
-                    number: { S: '+5550100' },
+                    number: { S: '600100' },
                   },
                 },
               },
@@ -41,7 +41,7 @@ export class Database extends Construct {
                   Item: {
                     department_name: { S: 'art' },
                     service: { S: 'voiceConnector' },
-                    number: { S: '+5550101' },
+                    number: { S: '600200' },
                   },
                 },
               },
@@ -50,7 +50,7 @@ export class Database extends Construct {
                   Item: {
                     department_name: { S: 'history' },
                     service: { S: 'voiceConnector' },
-                    number: { S: '+5550102' },
+                    number: { S: '600300' },
                   },
                 },
               },
@@ -59,7 +59,7 @@ export class Database extends Construct {
                   Item: {
                     department_name: { S: 'math' },
                     service: { S: 'voiceConnector' },
-                    number: { S: '+5550103' },
+                    number: { S: '600400' },
                   },
                 },
               },

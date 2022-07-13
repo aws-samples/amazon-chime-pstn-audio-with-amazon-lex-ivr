@@ -12,6 +12,10 @@ This demo differs slightly from the previous Amazon Lex + Amazon Chime SDK [demo
 
 This demo will deploy a fully working IVR that you can configure to route calls to either a Public Switched Telephone Network (PSTN) number or directly to an Amazon Chime SDK Voice Connector. This routing decision will be made based on the information passed from the Amazon Lex bot to the Amazon Chime SDK SIP media application. Calls routed to an Amazon Chime Voice Connector will contain additional Session Initiation Protocol (SIP) headers to pass information to the SIP user agent.
 
+![CallRouting](images/CallRouting.png)
+
+Amazon Chime PSTN Audio works with an AWS Lambda function to provide programmable telephony. This AWS Lambda function can be built to route calls using a wide range of conditions. In this demo we will be using an Amazon Lex bot to capture information used to make a routing decision, but other conditions could be used including time of day, calling number, called number, or DTMF collection. This routing decision can also be made with external data or services accessed by the AWS Lambda function including Amazon DynamoDB
+
 ## How It Works
 
 ### Inbound Call from PSTN
@@ -192,42 +196,38 @@ The associated AWS Lambda [function](resources/smaHandler/smaHandler.js) will th
 ```javascript
     case 'ACTION_SUCCESSFUL':
       console.log('ACTION SUCCESSFUL');
-      if (event.ActionData.Type == 'StartBotConversation') {
-        const callerIdNumber = event.CallDetails.Participants[0].From;
-        const lexDepartment =
-          event.ActionData.IntentResult.SessionState.Intent.Slots.Department
-            .Value.InterpretedValue;
-        if (lexDepartment in departments) {
-          pstnCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
-          pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri =
-            departments[lexDepartment];
-          actions = [pstnCallAndBridgeAction];
-        } else {
-          vcCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
-          vcCallAndBridgeAction.Parameters.SipHeaders['X-Lexinfo'] =
-            lexDepartment;
-          actions = [vcCallAndBridgeAction];
-        }
-        break;
+      switch (event.ActionData.Type) {
+        case 'StartBotConversastion':
+          const callerIdNumber = event.CallDetails.Participants[0].From;
+          const lexDepartment =
+            event.ActionData.IntentResult.SessionState.Intent.Slots.Department
+              .Value.InterpretedValue;
+          const route = await getRoute(lexDepartment);
+          switch (route.service) {
+            case 'voiceCconnector':
+              vcCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber;
+              vcCallAndBridgeAction.Parameters.SipHeaders['X-LexInfo'] =
+                lexDepartment;
+              vcCallAndBridgeAction.Parameters.Endpoints[0].Uri = route.number;
+              actions = [vcCallAndBridgeAction];
+            case 'pstnNumber':
+              pstnCallAndBridgeAction.Parameters.CallerIdNumber =
+                callerIdNumber;
+              pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri =
+                route.number;
+              actions = [pstnCallAndBridgeAction];
+            default:
+              break;
+          }
+          break;
+        case 'CallAndBridge':
+          break;
+        default:
+          break;
+      }
 ```
 
-As part of the CDK deployment, the SIP media application handler is built with several [environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html). These variables can be used to route the call.
-
-![EnvVariables](images/EnvVariables.png)
-
-```javascript
-var art = process.env['ART_DEPARTMENT'];
-var math = process.env['MATH_DEPARTMENT'];
-var science = process.env['SCIENCE_DEPARTMENT'];
-var history = process.env['HISTORY_DEPARTMENT'];
-var departments = {};
-art && (departments.art = art);
-math && (departments.math = math);
-science && (departments.science = science);
-history && (departments.history = history);
-```
-
-When the SIP media application Lambda is invoked with the information from Lex, the interpreted value will be extracted from the JSON.
+When the Amazon Chime SIP media application determines that the `ACTION_SUCCESSFUL` is for a `StartBotConversation` ActionData Type, the AWS Lambda function will extract the `lexDepartment` from the json in the event.
 
 ```json
             "SessionState": {
@@ -252,7 +252,7 @@ When the SIP media application Lambda is invoked with the information from Lex, 
             },
 ```
 
-If the environment variables `HISTORY_DEPARTMENT` has been configured with an E.164 phone number, the AWS Lambda will return a `pstnCallAndBridgeAction` to the SIP media application and the call will be bridged with that E.164 number. However, if the associated department environment variable is blank, the AWS Lambda will return a `vcCallAndBridgeAction` action.
+It will then query the assocaited `Department` Amazon DynamoDB Table to determine which service to use to route the call and the number to use as the Uri when making this call. In the above Table example, all of the calls will be routed to the Amazon Chime Voice Connector.
 
 ### vcCallAndBridgeAction
 
@@ -269,14 +269,13 @@ The `vcCallAndBridgeAction` and `pstnCallAndBridgeAction` will both bridge calls
                 "CallerIdNumber": "+1NPANXXXXXX",
                 "Endpoints": [
                     {
-                        "Uri": "+18155550100",
+                        "Uri": "600300",
                         "BridgeEndpointType": "AWS",
                         "Arn": "arn:aws:chime:us-east-1:104621577074:vc/ehwryzdm9hy4u6rrud7jym"
                     }
                 ],
                 "SipHeaders": {
-                    "X-LexInfo": "",
-                    "X-Lexinfo": "history"
+                    "X-LexInfo": "history",
                 }
             }
         }
@@ -284,25 +283,33 @@ The `vcCallAndBridgeAction` and `pstnCallAndBridgeAction` will both bridge calls
 }
 ```
 
-In this example, the call is placed to `+18155550100` (a number not publicly routed) and delivered to an Amazon Chime Voice Connector which will deliver the call to the associated host.
+In this example, the call is placed with a URI containing `600300` and delivered to an Amazon Chime Voice Connector which will deliver the call to the associated host.
 
 ![VoiceConnector](images/VoiceConnector.png)
 
-In this demo, that host is an Asterisk server that is built as part of the deployment. Also included in this demo is a web based SIP client that can be used to answer the incoming call.
+In this demo, that host is an Asterisk server that is built as part of the deployment. Also included in this demo is a web based SIP client that can optionally be used to answer the incoming call.
 
 ![SIPClient](images/SIPClient.png)
 
-As shown in this example, the department captured in the Lex bot will be delivered as a SIP header to the Asterisk server and then to the SIP client.
+As shown in this example, the department captured in the Lex bot will be delivered as a SIP header to the Asterisk server and then to the SIP client. The Request URI will contain the URI defined in the `CallAndBridge` action combined with the Inbound route of the Amazon Chime Voice Connector.
 
 ```SIP
-INVITE sip:+18155550100@44.194.55.161:5060;transport=UDP SIP/2.0
+INVITE sip:600300@192.0.2.31:5060;transport=UDP SIP/2.0
 From: <sip:+1NPANXXXXXX@10.0.174.226:5060>;tag=56Htvc9UXX7Ug
-To: <sip:+18155550100@44.194.55.161:5060>;transport=UDP
+To: <sip:600300@192.0.2.31:5060>;transport=UDP
 X-Lexinfo: history
 X-SMA-Max-Forwards: 4
 X-VoiceConnector-ID: ehwryzdm9hy4u6rrud7jym
 X-Amzn-TargetArn: arn:aws:chime:us-east-1:104621577074:vc/ehwryzdm9hy4u6rrud7jym
 ```
+
+If the included SIP client is not used, the Asterisk server will answer the call and play back a message generated by Polly during the server deployment.
+
+### pstnCallAndBridgeAction
+
+To route a call to a PSTN number, in the Amazon DynamoDB Table, change the service to `pstnNumber` and change the number to an E.164 number. For example:
+
+![UpdateRoute](images/UpdateRoute.png)
 
 ## Components Deployed
 
