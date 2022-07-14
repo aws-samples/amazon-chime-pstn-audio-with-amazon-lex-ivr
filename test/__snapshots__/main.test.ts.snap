@@ -5,7 +5,7 @@ Object {
   "Outputs": Object {
     "password": Object {
       "Value": Object {
-        "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
+        "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
       },
     },
     "pstnPhoneNumber": Object {
@@ -36,7 +36,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
+              "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
             },
           ],
         ],
@@ -224,12 +224,12 @@ Object {
           "Ref": "AsteriskasteriskEipB136F44F",
         },
         "InstanceId": Object {
-          "Ref": "AsteriskInstanceDB134462dfc91838b9f81525",
+          "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "AsteriskInstanceDB134462dfc91838b9f81525": Object {
+    "AsteriskInstanceDB1344623da5f8b1f98fcda5": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
@@ -272,7 +272,7 @@ exten => addheader,1,NoOP(Add \${ARG1} to SIP as X-LexInfo)
 same => n,Set(PJSIP_HEADER(add,X-LexInfo)=\${ARG1})
 
 [contact-center]
-exten => _+X.,1,NoOP(Inbound Contact Center)
+exten => _X.,1,NoOP(Inbound Contact Center)
 same => n,Answer()
 same => n,Wait(1)
 
@@ -529,16 +529,13 @@ stunaddr=stun.kinesisvideo.us-east-1.amazonaws.com:443",
               "/etc/config_asterisk.sh": Object {
                 "content": "#!/bin/bash -xe
 IP=$( jq -r '.IP' /etc/config.json )
-PSTN_VOICE_CONNECTOR=$( jq -r '.PSTNVoiceConnector' /etc/config.json )
 SMA_VOICE_CONNECTOR=$( jq -r '.SMAVoiceConnector' /etc/config.json )
-API_URL=$( jq -r '.API_URL' /etc/config.json )
 TOKEN=\`curl -X PUT \\"http://169.254.169.254/latest/api/token\\" -H \\"X-aws-ec2-metadata-token-ttl-seconds: 21600\\"\`
 LOCAL_HOSTNAME=$( curl -H \\"X-aws-ec2-metadata-token: $TOKEN\\" -v http://169.254.169.254/latest/meta-data/public-hostname )
 INSTANCE_ID=$( curl -H \\"X-aws-ec2-metadata-token: $TOKEN\\" -v http://169.254.169.254/latest/meta-data/instance-id )
 
 sed -i \\"s/IP_ADDRESS/$IP/g\\" /etc/asterisk/pjsip.conf
 sed -i \\"s/INSTANCE_ID/$INSTANCE_ID/g\\" /etc/asterisk/pjsip.conf
-sed -i \\"s/PSTN_VOICE_CONNECTOR/$PSTN_VOICE_CONNECTOR/g\\" /etc/asterisk/pjsip.conf
 sed -i \\"s/SMA_VOICE_CONNECTOR/$SMA_VOICE_CONNECTOR/g\\" /etc/asterisk/pjsip.conf
 
 cd /etc/polly/
@@ -746,7 +743,7 @@ ldconfig
               "",
               Array [
                 "#!/bin/bash
-# fingerprint: 54aafe52cfea780c
+# fingerprint: a50d623b7866f757
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -757,7 +754,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB134462dfc91838b9f81525 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB1344623da5f8b1f98fcda5 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -778,7 +775,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB134462dfc91838b9f81525 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB1344623da5f8b1f98fcda5 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -2504,7 +2501,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "30fc62133a5666be82a3dc339da0d841dd75282cfe72ac7aac2766083263faba.zip",
+          "S3Key": "3a5a93e3545d9e52488fda8565ac1b41073299344bd321cefeda64655ae59fb4.zip",
         },
         "Environment": Object {
           "Variables": Object {
