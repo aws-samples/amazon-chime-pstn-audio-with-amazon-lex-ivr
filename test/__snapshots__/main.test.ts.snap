@@ -1083,7 +1083,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
+          "S3Key": "e7c95e1a12d903d913ebdd526c735f1ac58b2024882a5562110221fe685ebe85.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/Asterisk/smaVoiceConnector/voiceConnectorRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -2087,7 +2087,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
+          "S3Key": "e7c95e1a12d903d913ebdd526c735f1ac58b2024882a5562110221fe685ebe85.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/pstnPhoneNumber/ChimePhoneNumber/PSTNResourceProvider)",
         "Environment": Object {
@@ -2216,7 +2216,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
+          "S3Key": "e7c95e1a12d903d913ebdd526c735f1ac58b2024882a5562110221fe685ebe85.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/sipMediaApp/sipMediaAppRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -2351,7 +2351,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8188cfc204ffd164ad7b2eef495169d46d9fae0ba891e4c81bb6a9c51e76d2a0.zip",
+          "S3Key": "e7c95e1a12d903d913ebdd526c735f1ac58b2024882a5562110221fe685ebe85.zip",
         },
         "Description": "AWS CDK resource provider framework - onEvent (test/PSTNAudio/sipRule/sipRuleRequest/PSTNResourceProvider)",
         "Environment": Object {
@@ -2501,7 +2501,11 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
+<<<<<<< HEAD
           "S3Key": "8c12b8c5ca42d85d67be82e5d378c6221a625bea8b616a5a45e97731a78e0e43.zip",
+=======
+          "S3Key": "4be7854942e5576eafda7337bab42676c0ef28923c18b9eb9c7a90d12effbb1c.zip",
+>>>>>>> 4090ffa93ee93169cd99bb33a8e3b8eaa051ceb1
         },
         "Environment": Object {
           "Variables": Object {
