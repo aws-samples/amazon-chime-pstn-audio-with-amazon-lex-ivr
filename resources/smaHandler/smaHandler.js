@@ -66,9 +66,9 @@ async function startSessions(event) {
         phoneNumber: event.CallDetails.Participants[0].From,
       },
       intent: {
-        name: 'GetCallerType',
+        name: 'RouteCall',
       },
-      dialogAction: { type: 'ElicitSlot', slotToElicit: 'CallerType' },
+      dialogAction: { type: 'ElicitSlot', slotToElicit: 'Department' },
     },
   };
   try {
