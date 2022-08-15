@@ -35,7 +35,6 @@ const common_exclude = [
   'yarn-error.log',
   'dependabot.yml',
   '.DS_Store',
-  'blog.html',
 ];
 
 project.gitignore.exclude(...common_exclude);
