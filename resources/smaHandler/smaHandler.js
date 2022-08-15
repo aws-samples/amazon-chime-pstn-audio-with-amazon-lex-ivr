@@ -109,7 +109,7 @@ exports.handler = async (event, context, callback) => {
               event.ActionData.IntentResult.SessionState.Intent.Slots.Department
                 .Value.InterpretedValue;
             route = await getRoute(lexDepartment);
-            if (route == 'undefined') {
+            if ({ route } == 'undefined') {
               lexDepartment = 'Unknown';
               route.service = 'voiceConnector';
               route.number = '000000';

@@ -1,223 +1,215 @@
-"use strict"
+import os
+import boto3
+import logging
+from botocore.client import Config
 
-// resources / smaHandler / smaHandler.js
-var import_client_lex_runtime_v2 = require("@aws-sdk/client-lex-runtime-v2")
-var import_lib_dynamodb2 = require("@aws-sdk/lib-dynamodb")
-var import_lib_dynamodb = require("@aws-sdk/lib-dynamodb")
-var import_client_dynamodb = require("@aws-sdk/client-dynamodb")
-var REGION = process.env["REGION"]
-var ddbClient = new import_client_dynamodb.DynamoDBClient({region: REGION})
-var marshallOptions = {
-    convertEmptyValues: false,
-    removeUndefinedValues: false,
-    convertClassInstanceToMap: false
-}
-var unmarshallOptions = {
-    wrapNumbers: false
-}
-var translateConfig = {marshallOptions, unmarshallOptions}
-var ddbDocClient = import_lib_dynamodb.DynamoDBDocumentClient.from(
-    ddbClient,
-    translateConfig
-)
-var lexBotId = process.env["LEX_BOT_ID"]
-var lexBotAliasId = process.env["LEX_BOT_ALIAS_ID"]
-var accountId = process.env["ACCOUNT_ID"]
-var voiceConnectorArn = process.env["VOICE_CONNECTOR_ARN"]
-var departmentDirectory = process.env["DEPARTMENT_DIRECTORY"]
-var lambdaRegion = process.env["REGION"]
-var lexClient = new import_client_lex_runtime_v2.LexRuntimeV2Client({
-    region: lambdaRegion
-})
-async function getRoute(department) {
-    const params = {
-        TableName: departmentDirectory,
-        Key: {
-            department_name: department
-        }
-    }
-    try {
-        console.log(`Getting department: ${department} from ${departmentDirectory}`
-                    )
-        const data = await ddbDocClient.send(
-            new import_lib_dynamodb2.GetCommand(params)
-        )
-        console.log(`Success - ${JSON.stringify(data)}`)
-        return data.Item
-    } catch(err) {
-        console.log(`Error: ${err}`)
-    }
-}
-async function startSessions(event) {
-    const putSessionCommandParams = {
-        botAliasId: lexBotAliasId,
-        botId: lexBotId,
-        localeId: "en_US",
-        sessionId: event.CallDetails.Participants[0].CallId,
-        sessionState: {
-            SessionAttributes: {
-                phoneNumber: event.CallDetails.Participants[0].From
+# Set LogLevel using environment variable, fallback to INFO if not present
+logger = logging.getLogger()
+try:
+    log_level = os.environ["LogLevel"]
+    if log_level not in ["INFO", "DEBUG"]:
+        log_level = "INFO"
+except BaseException:
+    log_level = "INFO"
+logger.setLevel(log_level)
+
+department_table = os.environ["DEPARTMENT_TABLE"]
+
+client_config = Config(connect_timeout=2, read_timeout=2, retries={"max_attempts": 5})
+dynamodb_client = boto3.client("dynamodb", config=client_config, region_name=os.environ["AWS_REGION"])
+
+
+def get_department(department_name):
+    try:
+        response = dynamodb_client.get_item(
+            Key={
+                "department_name": {
+                    "S": str(department_name),
+                },
             },
-            intent: {
-                name: "RouteCall"
-            },
-            dialogAction: {type: "ElicitSlot", slotToElicit: "Department"}
-        }
-    }
-    try {
-        console.log(JSON.stringify(putSessionCommandParams, null, 3))
-        await lexClient.send(
-            new import_client_lex_runtime_v2.PutSessionCommand(
-                putSessionCommandParams
-            )
+            TableName=department_table,
         )
-        return true
-    } catch(err) {
-        console.log(`Error: ${err}`)
+        if "Item" in response:
+            return True
+        else:
+            return False
+    except Exception as err:
+        logger.error("DynamoDB Query error: failed to fetch data from table. Error: ", exc_info=err)
+        return None
+
+
+def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message):
+    return {
+        "messages": [message],
+        "sessionState": {
+            "sessionAttributes": session_attributes,
+            "dialogAction": {"type": "ElicitSlot", "slotToElicit": slot_to_elicit},
+            "intent": {"name": intent_name, "slots": slots},
+        },
     }
-}
-exports.handler = async (event, context, callback) = > {
-    console.log("Lambda is invoked with calldetails:" + JSON.stringify(event))
-    let actions
-    switch(event.InvocationEventType) {
-        case "NEW_INBOUND_CALL":
-        console.log("NEW INBOUND CALL")
-        await startSessions(event)
-        speakAction.Parameters.CallId = event.CallDetails.Participants[0].CallId
-        startBotConversationAction.Parameters.Configuration.SessionState.SessionAttributes.phoneNumber = event.CallDetails.Participants[0].From
-        actions = [speakAction, startBotConversationAction]
-        break
-        case "RINGING":
-        console.log("RINGING")
-        actions = []
-        break
-        case "ACTION_SUCCESSFUL":
-        console.log("ACTION SUCCESSFUL")
-        switch(event.ActionData.Type) {
-            case "StartBotConversation":
-            console.log("StartBotConversation Success")
-            const callerIdNumber = event.CallDetails.Participants[0].From
-            let lexDepartment
-            let route = {}
-            if ("Department" in event.ActionData.IntentResult.SessionState.Intent.Slots) {
-                lexDepartment = event.ActionData.IntentResult.SessionState.Intent.Slots.Department.Value.InterpretedValue
-                route = await getRoute(lexDepartment)
-                if (route == 'undefined') {
-                    lexDepartment = "Unknown"
-                    route.service = "voiceConnector"
-                    route.number = "000000"
-                }
-                console.log(`Route from DynamoDB: ${route}`)
-                console.log(`lexDepartment from event: ${lexDepartment}`)
-            } else {
-                lexDepartment = "Unknown"
-                route.service = "voiceConnector"
-                route.number = "000000"
-            }
-            switch(route.service) {
-                case "voiceConnector":
-                console.log("Using Amazon Chime Voice Connector Routing")
-                vcCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber
-                vcCallAndBridgeAction.Parameters.SipHeaders["X-LexInfo"] = lexDepartment
-                vcCallAndBridgeAction.Parameters.Endpoints[0].Uri = route.number
-                actions = [vcCallAndBridgeAction]
-                break
-                case "pstnNumber":
-                console.log("Using PSTN Routing")
-                pstnCallAndBridgeAction.Parameters.CallerIdNumber = callerIdNumber
-                pstnCallAndBridgeAction.Parameters.Endpoints[0].Uri = route.number
-                actions = [pstnCallAndBridgeAction]
-                break
-                default:
-                break
-            }
-            break
-            case "CallAndBridge":
-            console.log("NoOp for CallAndBridge ACTION SUCCESSFUL")
-            actions = []
-            break
-            default:
-            console.log("NoOp for default")
-            actions = []
-            break
-        }
-        break
-        case "HANGUP":
-        console.log("HANGUP ACTION")
-        if (event.CallDetails.Participants[1]) {
-            hangupAction.Parameters.CallId = event.CallDetails.Participants[1].CallId
-            actions = [hangupAction]
-        }
-        break
-        default:
-        console.log("FAILED ACTION")
-        actions = []
+
+
+def confirm_intent(session_attributes, intent_name, slots, message):
+    return {
+        "messages": [message],
+        "sessionState": {
+            "sessionAttributes": session_attributes,
+            "dialogAction": {"type": "ConfirmIntent"},
+            "intent": {"name": intent_name, "slots": slots},
+        },
     }
-    const response = {
-        SchemaVersion: "1.0",
-        Actions: actions
+
+
+def close(session_attributes, intent_name, fulfillment_state, message):
+    response = {
+        "messages": [message],
+        "sessionState": {
+            "dialogAction": {"type": "Close"},
+            "sessionAttributes": session_attributes,
+            "intent": {"name": intent_name, "state": fulfillment_state},
+        },
     }
-    console.log("Sending response:" + JSON.stringify(response))
-    callback(null, response)
-}
-var startBotConversationAction = {
-    Type: "StartBotConversation",
-    Parameters: {
-        BotAliasArn: `arn: aws: lex: ${lambdaRegion}: ${accountId}: bot - alias /${lexBotId} /${lexBotAliasId}`,
-        Configuration: {
-            SessionState: {
-                SessionAttributes: {
-                    phoneNumber: ""
-                }
-            }
+
+    return response
+
+
+def delegate(session_attributes, intent_name, slots):
+    return {
+        "sessionState": {
+            "dialogAction": {"type": "Delegate"},
+            "sessionAttributes": session_attributes,
+            "intent": {"name": intent_name, "slots": slots},
         }
     }
-}
-var pstnCallAndBridgeAction = {
-    Type: "CallAndBridge",
-    Parameters: {
-        CallTimeoutSeconds: 30,
-        CallerIdNumber: "",
-        Endpoints: [
-          {
-              Uri: "",
-              BridgeEndpointType: "PSTN"
-          }
-        ]
-    }
-}
-var vcCallAndBridgeAction = {
-    Type: "CallAndBridge",
-    Parameters: {
-        CallTimeoutSeconds: 30,
-        CallerIdNumber: "",
-        Endpoints: [
-          {
-              Uri: "",
-              BridgeEndpointType: "AWS",
-              Arn: voiceConnectorArn
-          }
-        ],
-        SipHeaders: {
-            "X-LexInfo": ""
-        }
-    }
-}
-var hangupAction = {
-    Type: "Hangup",
-    Parameters: {
-        SipResponseCode: "0",
-        ParticipantTag: ""
-    }
-}
-var speakAction = {
-    Type: "Speak",
-    Parameters: {
-        Text: "What department would you like to be connected to?",
-        CallId: "",
-        Engine: "standard",
-        LanguageCode: "en-US",
-        TextType: "text",
-        VoiceId: "Kimberly"
-    }
-}
+
+
+# --- Helper Functions ---
+
+
+def safe_int(n):
+    """
+    Safely convert n value to int.
+    """
+    if n is not None:
+        return int(n)
+    return n
+
+
+def try_ex(func):
+    """
+    Call passed in function in try block. If KeyError is encountered return None.
+    This function is intended to be used to safely access dictionary.
+    Note that this function would have negative impact on performance.
+    """
+
+    try:
+        return func()
+    except KeyError:
+        return None
+
+
+def interpreted_value(slot):
+    """
+    Retrieves interprated value from slot object
+    """
+    if slot is not None:
+        return slot["value"]["interpretedValue"]
+    return slot
+
+
+def get_slots(intent_request):
+    return intent_request["sessionState"]["intent"]["slots"]
+
+
+def get_slot(intent_request, slotName):
+    slots = get_slots(intent_request)
+    if slots is not None and slotName in slots and slots[slotName] is not None:
+        if 'interpretedValue' in slots[slotName]['value']:
+            return slots[slotName]["value"]["interpretedValue"]
+        else:
+            return None
+    else:
+        return None
+
+
+def get_session_attributes(intent_request):
+    sessionState = intent_request["sessionState"]
+    if "sessionAttributes" in sessionState:
+        return sessionState["sessionAttributes"]
+
+    return {}
+
+
+def RouteCall(intent_request):
+    session_attributes = get_session_attributes(intent_request)
+    slots = get_slots(intent_request)
+    department = get_slot(intent_request, "Department")
+    query_department = get_department(department)
+    if query_department:
+        print('querying department')
+        text = "Connecting you to " + department + " department."
+        message = {"contentType": "PlainText", "content": text}
+        fulfillment_state = "Fulfilled"
+        return close(session_attributes, "RouteCall", fulfillment_state, message)
+    else:
+        if 'failure_count' in session_attributes:
+            print(f"Failure Count: {session_attributes['failure_count']}")
+            if int(session_attributes['failure_count']) >= 2:
+                text = "Sorry, I couldn't find that department.  Let me connect you to an operator."
+                message = {"contentType": "PlainText", "content": text}
+                fulfillment_state = "Fulfilled"
+                return close(session_attributes, "RouteCall", fulfillment_state, message)
+            else:
+                session_attributes['failure_count'] = int(session_attributes['failure_count']) + 1
+                try_ex(lambda: slots.pop("Department"))
+                text = "Sorry, I couldn't find that department.  Can you try again?"
+                message = {"contentType": "PlainText", "content": text}
+                return elicit_slot(session_attributes, intent_request["sessionState"]["intent"]["name"], slots, "Department", message)
+        else:
+            session_attributes['failure_count'] = 1
+            try_ex(lambda: slots.pop("Department"))
+            text = "Sorry, I couldn't find that department.  Can you try again?"
+            message = {"contentType": "PlainText", "content": text}
+            return elicit_slot(session_attributes, intent_request["sessionState"]["intent"]["name"], slots, "Department", message)
+
+
+def FallbackIntent(intent_request):
+    session_attributes = get_session_attributes(intent_request)
+    slots = get_slots(intent_request)
+    if 'failure_count' in session_attributes:
+        if int(session_attributes['failure_count']) > 2:
+            message = {"contentType": "PlainText", "content": text}
+            text = "Sorry, I couldn't find that department.  Let me connect you to an operator."
+            fulfillment_state = "Fulfilled"
+            return close(session_attributes, "RouteCall", fulfillment_state, message)
+        else:
+            session_attributes['failure_count'] = int(session_attributes['failure_count']) + 1
+            try_ex(lambda: slots.pop("Department"))
+            text = "Sorry, I couldn't find that department.  Can you try again?"
+            message = {"contentType": "PlainText", "content": text}
+            return elicit_slot(session_attributes, "RouteCall", slots, "Department", message)
+    else:
+        session_attributes['failure_count'] = 1
+        try_ex(lambda: slots.pop("Department"))
+        text = "Sorry, I couldn't find that department.  Can you try again?"
+        message = {"contentType": "PlainText", "content": text}
+        return elicit_slot(session_attributes, "RouteCall", slots, "Department", message)
+
+
+def dispatch(intent_request):
+    intent_name = intent_request["sessionState"]["intent"]["name"]
+    response = None
+    # Dispatch to your bot's intent handlers
+    if intent_name == "RouteCall":
+        return RouteCall(intent_request)
+    if intent_name == 'FallbackIntent':
+        return FallbackIntent(intent_request)
+
+    raise Exception("Intent with name " + intent_name + " not supported")
+
+
+def lambda_handler(event, context):
+    print(event)
+    response = dispatch(event)
+    print(response)
+    return response
