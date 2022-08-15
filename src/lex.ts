@@ -82,11 +82,49 @@ export class Lex extends Construct {
             voiceId: 'Kimberly',
           },
           description: 'English_US',
+          slotTypes: [
+            {
+              name: 'Departments',
+              description: 'Possible Departments',
+              valueSelectionSetting: {
+                resolutionStrategy: 'ORIGINAL_VALUE',
+              },
+              slotTypeValues: [
+                {
+                  sampleValue: {
+                    value: 'art',
+                  },
+                },
+                {
+                  sampleValue: {
+                    value: 'history',
+                  },
+                },
+                {
+                  sampleValue: {
+                    value: 'math',
+                  },
+                },
+                {
+                  sampleValue: {
+                    value: 'science',
+                  },
+                },
+              ],
+            },
+          ],
           intents: [
             {
               name: 'RouteCall',
               description: 'Simple Call Routing',
               sampleUtterances: [
+                { utterance: 'Call {Department} department' },
+                { utterance: '{Department} department' },
+                { utterance: 'Dial {Department} department' },
+                { utterance: 'Talk to {Department} department' },
+                { utterance: 'I need {Department} department' },
+                { utterance: "It's {Department} department" },
+                { utterance: 'I want {Department} department' },
                 { utterance: 'Call {Department}' },
                 { utterance: '{Department}' },
                 { utterance: 'Dial {Department}' },
@@ -94,6 +132,13 @@ export class Lex extends Construct {
                 { utterance: 'I need {Department}' },
                 { utterance: "It's {Department}" },
                 { utterance: 'I want {Department}' },
+                { utterance: 'Call {Department} office' },
+                { utterance: '{Department} office' },
+                { utterance: 'Dial {Department} office' },
+                { utterance: 'Talk to {Department} office' },
+                { utterance: 'I need {Department} office' },
+                { utterance: "It's {Department} office" },
+                { utterance: 'I want {Department} office' },
               ],
               fulfillmentCodeHook: { enabled: true },
               dialogCodeHook: {
@@ -106,25 +151,10 @@ export class Lex extends Construct {
                   turnsToLive: 5,
                 },
               ],
-              // intentClosingSetting: {
-              //   closingResponse: {
-              //     messageGroupsList: [
-              //       {
-              //         message: {
-              //           plainTextMessage: {
-              //             value: 'Dialing your extension.',
-              //           },
-              //         },
-              //       },
-              //     ],
-              //     allowInterrupt: false,
-              //   },
-              //   isActive: true,
-              // },
               slots: [
                 {
                   name: 'Department',
-                  slotTypeName: 'AMAZON.AlphaNumeric',
+                  slotTypeName: 'Departments',
                   valueElicitationSetting: {
                     slotConstraint: 'Required',
                     promptSpecification: {
@@ -147,19 +177,8 @@ export class Lex extends Construct {
             {
               name: 'FallbackIntent',
               parentIntentSignature: 'AMAZON.FallbackIntent',
-              intentClosingSetting: {
-                closingResponse: {
-                  messageGroupsList: [
-                    {
-                      message: {
-                        plainTextMessage: {
-                          value:
-                            "Sorry I am having trouble understanding. Can you say the person's name again?",
-                        },
-                      },
-                    },
-                  ],
-                },
+              dialogCodeHook: {
+                enabled: true,
               },
             },
           ],
