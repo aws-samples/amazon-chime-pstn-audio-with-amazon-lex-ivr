@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.95.0",
+    "@aws-sdk/client-lex-runtime-v2": "^3.145.0",
     "@aws-sdk/lib-dynamodb": "^3.95.0"
   }
 }

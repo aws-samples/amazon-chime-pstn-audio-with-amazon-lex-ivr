@@ -1,24 +1,40 @@
+// resources/smaHandler/smaHandler.js
+var import_client_lex_runtime_v2 = require('@aws-sdk/client-lex-runtime-v2');
+var import_lib_dynamodb2 = require('@aws-sdk/lib-dynamodb');
+
+// resources/smaHandler/libs/ddbDocClient.js
+var import_lib_dynamodb = require('@aws-sdk/lib-dynamodb');
+
+// resources/smaHandler/libs/ddbClient.js
+var import_client_dynamodb = require('@aws-sdk/client-dynamodb');
+var REGION = process.env['REGION'];
+var ddbClient = new import_client_dynamodb.DynamoDBClient({ region: REGION });
+
+// resources/smaHandler/libs/ddbDocClient.js
+var marshallOptions = {
+  convertEmptyValues: false,
+  removeUndefinedValues: false,
+  convertClassInstanceToMap: false,
+};
+var unmarshallOptions = {
+  wrapNumbers: false,
+};
+var translateConfig = { marshallOptions, unmarshallOptions };
+var ddbDocClient = import_lib_dynamodb.DynamoDBDocumentClient.from(
+  ddbClient,
+  translateConfig,
+);
+
+// resources/smaHandler/smaHandler.js
 var lexBotId = process.env['LEX_BOT_ID'];
 var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
 var voiceConnectorArn = process.env['VOICE_CONNECTOR_ARN'];
 var departmentDirectory = process.env['DEPARTMENT_DIRECTORY'];
-var REGION = process.env['REGION'];
-
-import { GetCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-
-const ddbClient = new DynamoDBClient({ region: REGION });
-const marshallOptions = {
-  convertEmptyValues: false,
-  removeUndefinedValues: true,
-  convertClassInstanceToMap: false,
-};
-
-const unmarshallOptions = { wrapNumbers: false };
-const translateConfig = { marshallOptions, unmarshallOptions };
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
-
+var lambdaRegion = process.env['REGION'];
+var lexClient = new import_client_lex_runtime_v2.LexRuntimeV2Client({
+  region: lambdaRegion,
+});
 async function getRoute(department) {
   const params = {
     TableName: departmentDirectory,
@@ -30,9 +46,39 @@ async function getRoute(department) {
     console.log(
       `Getting department: ${department} from ${departmentDirectory}`,
     );
-    const data = await ddbDocClient.send(new GetCommand(params));
+    const data = await ddbDocClient.send(
+      new import_lib_dynamodb2.GetCommand(params),
+    );
     console.log(`Success - ${JSON.stringify(data)}`);
     return data.Item;
+  } catch (err) {
+    console.log(`Error: ${err}`);
+  }
+}
+async function startSessions(event) {
+  const putSessionCommandParams = {
+    botAliasId: lexBotAliasId,
+    botId: lexBotId,
+    localeId: 'en_US',
+    sessionId: event.CallDetails.Participants[0].CallId,
+    sessionState: {
+      SessionAttributes: {
+        phoneNumber: event.CallDetails.Participants[0].From,
+      },
+      intent: {
+        name: 'GetCallerType',
+      },
+      dialogAction: { type: 'ElicitSlot', slotToElicit: 'CallerType' },
+    },
+  };
+  try {
+    console.log(JSON.stringify(putSessionCommandParams, null, 3));
+    await lexClient.send(
+      new import_client_lex_runtime_v2.PutSessionCommand(
+        putSessionCommandParams,
+      ),
+    );
+    return true;
   } catch (err) {
     console.log(`Error: ${err}`);
   }
@@ -43,9 +89,11 @@ exports.handler = async (event, context, callback) => {
   switch (event.InvocationEventType) {
     case 'NEW_INBOUND_CALL':
       console.log('NEW INBOUND CALL');
+      await startSessions(event);
+      speakAction.Parameters.CallId = event.CallDetails.Participants[0].CallId;
       startBotConversationAction.Parameters.Configuration.SessionState.SessionAttributes.phoneNumber =
         event.CallDetails.Participants[0].From;
-      actions = [startBotConversationAction];
+      actions = [speakAction, startBotConversationAction];
       break;
     case 'RINGING':
       console.log('RINGING');
@@ -57,12 +105,23 @@ exports.handler = async (event, context, callback) => {
         case 'StartBotConversation':
           console.log('StartBotConversation Success');
           const callerIdNumber = event.CallDetails.Participants[0].From;
-          const lexDepartment =
-            event.ActionData.IntentResult.SessionState.Intent.Slots.Department
-              .Value.InterpretedValue;
-          const route = await getRoute(lexDepartment);
-          console.log(`Route from DynamoDB: ${route}`);
-          console.log(`lexDepartment from event: ${lexDepartment}`);
+          let lexDepartment;
+          let route = {};
+          if (
+            'Department' in
+            event.ActionData.IntentResult.SessionState.Intent.Slots
+          ) {
+            lexDepartment =
+              event.ActionData.IntentResult.SessionState.Intent.Slots.Department
+                .Value.InterpretedValue;
+            route = await getRoute(lexDepartment);
+            console.log(`Route from DynamoDB: ${route}`);
+            console.log(`lexDepartment from event: ${lexDepartment}`);
+          } else {
+            lexDepartment = 'Unknown';
+            route.service = 'voiceConnector';
+            route.number = '000000';
+          }
           switch (route.service) {
             case 'voiceConnector':
               console.log('Using Amazon Chime Voice Connector Routing');
@@ -116,29 +175,13 @@ exports.handler = async (event, context, callback) => {
 var startBotConversationAction = {
   Type: 'StartBotConversation',
   Parameters: {
-    BotAliasArn:
-      'arn:aws:lex:us-east-1:' +
-      accountId +
-      ':bot-alias/' +
-      lexBotId +
-      '/' +
-      lexBotAliasId,
-    LocaleId: 'en_US',
+    BotAliasArn: `arn:aws:lex:${lambdaRegion}:${accountId}:bot-alias/${lexBotId}/${lexBotAliasId}`,
     Configuration: {
       SessionState: {
         SessionAttributes: {
           phoneNumber: '',
         },
-        DialogAction: {
-          Type: 'ElicitIntent',
-        },
       },
-      WelcomeMessages: [
-        {
-          Content: 'What department would you like to be connected to?',
-          ContentType: 'PlainText',
-        },
-      ],
     },
   },
 };
@@ -177,5 +220,16 @@ var hangupAction = {
   Parameters: {
     SipResponseCode: '0',
     ParticipantTag: '',
+  },
+};
+var speakAction = {
+  Type: 'Speak',
+  Parameters: {
+    Text: 'What department would you like to be connected to?',
+    CallId: '',
+    Engine: 'standard',
+    LanguageCode: 'en-US',
+    TextType: 'text',
+    VoiceId: 'Kimberly',
   },
 };

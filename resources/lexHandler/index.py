@@ -143,20 +143,54 @@ def RouteCall(intent_request):
     department = get_slot(intent_request, "Department")
     query_department = get_department(department)
     if query_department:
+        print('querying department')
         text = "Connecting you to " + department + " department."
         message = {"contentType": "PlainText", "content": text}
         fulfillment_state = "Fulfilled"
         return close(session_attributes, "RouteCall", fulfillment_state, message)
     else:
-        session_attributes = {}
+        if 'failure_count' in session_attributes:
+            print(f"Failure Count: {session_attributes['failure_count']}")
+            if int(session_attributes['failure_count']) >= 2:
+                text = "Sorry, I couldn't find that department.  Let me connect you to an operator."
+                message = {"contentType": "PlainText", "content": text}
+                fulfillment_state = "Fulfilled"
+                return close(session_attributes, "RouteCall", fulfillment_state, message)
+            else:
+                session_attributes['failure_count'] = int(session_attributes['failure_count']) + 1
+                try_ex(lambda: slots.pop("Department"))
+                text = "Sorry, I couldn't find that department.  Can you try again?"
+                message = {"contentType": "PlainText", "content": text}
+                return elicit_slot(session_attributes, intent_request["sessionState"]["intent"]["name"], slots, "Department", message)
+        else:
+            session_attributes['failure_count'] = 1
+            try_ex(lambda: slots.pop("Department"))
+            text = "Sorry, I couldn't find that department.  Can you try again?"
+            message = {"contentType": "PlainText", "content": text}
+            return elicit_slot(session_attributes, intent_request["sessionState"]["intent"]["name"], slots, "Department", message)
+
+
+def FallbackIntent(intent_request):
+    session_attributes = get_session_attributes(intent_request)
+    slots = get_slots(intent_request)
+    if 'failure_count' in session_attributes:
+        if int(session_attributes['failure_count']) > 2:
+            message = {"contentType": "PlainText", "content": text}
+            text = "Sorry, I couldn't find that department.  Let me connect you to an operator."
+            fulfillment_state = "Fulfilled"
+            return close(session_attributes, "RouteCall", fulfillment_state, message)
+        else:
+            session_attributes['failure_count'] = int(session_attributes['failure_count']) + 1
+            try_ex(lambda: slots.pop("Department"))
+            text = "Sorry, I couldn't find that department.  Can you try again?"
+            message = {"contentType": "PlainText", "content": text}
+            return elicit_slot(session_attributes, "RouteCall", slots, "Department", message)
+    else:
+        session_attributes['failure_count'] = 1
         try_ex(lambda: slots.pop("Department"))
-        return elicit_slot(
-            session_attributes,
-            intent_request["sessionState"]["intent"]["name"],
-            slots,
-            "Department",
-            {"contentType": "PlainText", "content": "What department are you looking for?"},
-        )
+        text = "Sorry, I couldn't find that department.  Can you try again?"
+        message = {"contentType": "PlainText", "content": text}
+        return elicit_slot(session_attributes, "RouteCall", slots, "Department", message)
 
 
 def dispatch(intent_request):
@@ -165,6 +199,8 @@ def dispatch(intent_request):
     # Dispatch to your bot's intent handlers
     if intent_name == "RouteCall":
         return RouteCall(intent_request)
+    if intent_name == 'FallbackIntent':
+        return FallbackIntent(intent_request)
 
     raise Exception("Intent with name " + intent_name + " not supported")
 

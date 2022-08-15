@@ -1845,7 +1845,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "7f618720ad07dcd4d8f548b5e528af902d172a4dae40355225e913e58486e06c.zip",
+          "S3Key": "b4a1814ca6bff7d309955b323ff03634d69f7497fb85388559d923ada41a76d8.zip",
         },
         "Environment": Object {
           "Variables": Object {
@@ -2501,7 +2501,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "3e94ca6744235767c0d30ed47f293848ea62f68c282a0f043df5323420e76997.zip",
+          "S3Key": "2ec75e78a88696099325de6fcf2385483561e1f7de654a3dab74138f60808861.zip",
         },
         "Environment": Object {
           "Variables": Object {
@@ -2596,7 +2596,10 @@ ldconfig
             "PolicyDocument": Object {
               "Statement": Array [
                 Object {
-                  "Action": "chime:*",
+                  "Action": Array [
+                    "chime:*",
+                    "lex:putSession",
+                  ],
                   "Effect": "Allow",
                   "Resource": "*",
                 },
