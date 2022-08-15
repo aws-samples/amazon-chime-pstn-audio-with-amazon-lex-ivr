@@ -896,9 +896,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "18.7.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.3.tgz#432c89796eab539b7a30b7b8801a727b585238a4"
-  integrity sha512-LJgzOEwWuMTBxHzgBR/fhhBOWrvBjvO+zPteUgbbuQi80rYIZHrk1mNbRUqPZqSLP2H7Rwt1EFLL/tNLD1Xx/w==
+  version "18.7.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.4.tgz#95baa50846ae112a7376869d49fec23b2506c69d"
+  integrity sha512-RzRcw8c0B8LzryWOR4Wj7YOTFXvdYKwvrb6xQQyuDfnlTxwYXGCV5RZ/TEbq5L5kn+w3rliHAUyRcG1RtbmTFg==
 
 "@types/node@^14":
   version "14.18.23"
@@ -1468,10 +1468,10 @@ case@1.6.3, case@^1.6.3:
   resolved "https://registry.yarnpkg.com/case/-/case-1.6.3.tgz#0a4386e3e9825351ca2e6216c60467ff5f1ea1c9"
   integrity sha512-mzDSXIPaFwVDvZAHqZ9VlbyF4yyXRuX6IvB06WvPYkqJVO24kX1PPhv9bfpKNFZyxYFmmgo03HUiD8iklmJYRQ==
 
-cdk-amazon-chime-resources@^0.1.77:
-  version "0.1.77"
-  resolved "https://registry.yarnpkg.com/cdk-amazon-chime-resources/-/cdk-amazon-chime-resources-0.1.77.tgz#51f5561e47aa47b7d79e064715c4c0d7a37d478b"
-  integrity sha512-LYEQ1at4iiBYZsCKEd3+Tlzn5HdoEQYmhXLtnBaxgZCs3P2kSm41wcCQeUosRgwmo8awfspcZluxaSen1f8lmQ==
+cdk-amazon-chime-resources@^0.1.78:
+  version "0.1.78"
+  resolved "https://registry.yarnpkg.com/cdk-amazon-chime-resources/-/cdk-amazon-chime-resources-0.1.78.tgz#88626bcfee7ffeb5db43d07b6f9a6300accdb5ad"
+  integrity sha512-SyG2Ec5YXhhRAlsrZtQH7kY+3QycQqDR45fqpmJ51W7i4Bh1y6Al6aclnJ8Wx5G2nXvnxZ+DZrLpCwkk/F72rg==
 
 chalk@^2.0.0:
   version "2.4.2"
@@ -1642,9 +1642,9 @@ console-control-strings@^1.1.0:
   integrity sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==
 
 constructs@^10.0.5:
-  version "10.1.75"
-  resolved "https://registry.yarnpkg.com/constructs/-/constructs-10.1.75.tgz#540c751bf6baff187d95355bb024d6e1a058c796"
-  integrity sha512-3LJz3XQFcp4Rmj7I3kjVze97hS1aQAAJjLldgkpQ6gL6dsPnN3RNEVIG+uwdSluZZQICF8T9GX0oJalj2jWLJg==
+  version "10.1.76"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-10.1.76.tgz#bb00d0cc676f6657cdd226768accc68b07ff5022"
+  integrity sha512-jFv9KVYx/nW9h1/TWP/wU44Djj8EEJnL708utTkpw4MyD5sOWKmFWy+IKVXWMJXCrda1CYoyhP6yO6YjQ1BkpA==
 
 conventional-changelog-config-spec@^2.1.0:
   version "2.1.0"
