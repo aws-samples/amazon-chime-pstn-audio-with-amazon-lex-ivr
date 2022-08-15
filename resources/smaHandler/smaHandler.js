@@ -1,16 +1,12 @@
+'use strict';
+
 // resources/smaHandler/smaHandler.js
 var import_client_lex_runtime_v2 = require('@aws-sdk/client-lex-runtime-v2');
 var import_lib_dynamodb2 = require('@aws-sdk/lib-dynamodb');
-
-// resources/smaHandler/libs/ddbDocClient.js
 var import_lib_dynamodb = require('@aws-sdk/lib-dynamodb');
-
-// resources/smaHandler/libs/ddbClient.js
 var import_client_dynamodb = require('@aws-sdk/client-dynamodb');
 var REGION = process.env['REGION'];
 var ddbClient = new import_client_dynamodb.DynamoDBClient({ region: REGION });
-
-// resources/smaHandler/libs/ddbDocClient.js
 var marshallOptions = {
   convertEmptyValues: false,
   removeUndefinedValues: false,
@@ -24,8 +20,6 @@ var ddbDocClient = import_lib_dynamodb.DynamoDBDocumentClient.from(
   ddbClient,
   translateConfig,
 );
-
-// resources/smaHandler/smaHandler.js
 var lexBotId = process.env['LEX_BOT_ID'];
 var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
@@ -115,6 +109,11 @@ exports.handler = async (event, context, callback) => {
               event.ActionData.IntentResult.SessionState.Intent.Slots.Department
                 .Value.InterpretedValue;
             route = await getRoute(lexDepartment);
+            if (route == 'undefined') {
+              lexDepartment = 'Unknown';
+              route.service = 'voiceConnector';
+              route.number = '000000';
+            }
             console.log(`Route from DynamoDB: ${route}`);
             console.log(`lexDepartment from event: ${lexDepartment}`);
           } else {
