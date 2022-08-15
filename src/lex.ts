@@ -82,6 +82,7 @@ export class Lex extends Construct {
             voiceId: 'Kimberly',
           },
           description: 'English_US',
+<<<<<<< HEAD
           slotTypes: [
             {
               name: 'Departments',
@@ -113,11 +114,14 @@ export class Lex extends Construct {
               ],
             },
           ],
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
           intents: [
             {
               name: 'RouteCall',
               description: 'Simple Call Routing',
               sampleUtterances: [
+<<<<<<< HEAD
                 { utterance: 'Call {Department} department' },
                 { utterance: '{Department} department' },
                 { utterance: 'Dial {Department} department' },
@@ -125,6 +129,8 @@ export class Lex extends Construct {
                 { utterance: 'I need {Department} department' },
                 { utterance: "It's {Department} department" },
                 { utterance: 'I want {Department} department' },
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                 { utterance: 'Call {Department}' },
                 { utterance: '{Department}' },
                 { utterance: 'Dial {Department}' },
@@ -132,6 +138,7 @@ export class Lex extends Construct {
                 { utterance: 'I need {Department}' },
                 { utterance: "It's {Department}" },
                 { utterance: 'I want {Department}' },
+<<<<<<< HEAD
                 { utterance: 'Call {Department} office' },
                 { utterance: '{Department} office' },
                 { utterance: 'Dial {Department} office' },
@@ -139,6 +146,8 @@ export class Lex extends Construct {
                 { utterance: 'I need {Department} office' },
                 { utterance: "It's {Department} office" },
                 { utterance: 'I want {Department} office' },
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
               ],
               fulfillmentCodeHook: { enabled: true },
               dialogCodeHook: {
@@ -151,10 +160,32 @@ export class Lex extends Construct {
                   turnsToLive: 5,
                 },
               ],
+<<<<<<< HEAD
               slots: [
                 {
                   name: 'Department',
                   slotTypeName: 'Departments',
+=======
+              // intentClosingSetting: {
+              //   closingResponse: {
+              //     messageGroupsList: [
+              //       {
+              //         message: {
+              //           plainTextMessage: {
+              //             value: 'Dialing your extension.',
+              //           },
+              //         },
+              //       },
+              //     ],
+              //     allowInterrupt: false,
+              //   },
+              //   isActive: true,
+              // },
+              slots: [
+                {
+                  name: 'Department',
+                  slotTypeName: 'AMAZON.AlphaNumeric',
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                   valueElicitationSetting: {
                     slotConstraint: 'Required',
                     promptSpecification: {
@@ -177,8 +208,24 @@ export class Lex extends Construct {
             {
               name: 'FallbackIntent',
               parentIntentSignature: 'AMAZON.FallbackIntent',
+<<<<<<< HEAD
               dialogCodeHook: {
                 enabled: true,
+=======
+              intentClosingSetting: {
+                closingResponse: {
+                  messageGroupsList: [
+                    {
+                      message: {
+                        plainTextMessage: {
+                          value:
+                            "Sorry I am having trouble understanding. Can you say the person's name again?",
+                        },
+                      },
+                    },
+                  ],
+                },
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
               },
             },
           ],

@@ -43,11 +43,15 @@ export class PSTNAudio extends Construct {
     this.smaHandlerLambda = new NodejsFunction(this, 'smaHandlerLambda', {
       entry: './resources/smaHandler/smaHandler.js',
       bundling: {
+<<<<<<< HEAD
         nodeModules: [
           '@aws-sdk/client-dynamodb',
           '@aws-sdk/lib-dynamodb',
           '@aws-sdk/client-lex-runtime-v2',
         ],
+=======
+        nodeModules: ['@aws-sdk/client-dynamodb', '@aws-sdk/lib-dynamodb'],
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       },
       runtime: Runtime.NODEJS_16_X,
       role: smaHandlerRole,

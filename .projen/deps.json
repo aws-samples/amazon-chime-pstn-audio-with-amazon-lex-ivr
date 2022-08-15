@@ -26,7 +26,11 @@
     },
     {
       "name": "aws-cdk",
+<<<<<<< HEAD
       "version": "^2.37.1",
+=======
+      "version": "^2.31.0",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "build"
     },
     {
@@ -51,13 +55,26 @@
       "type": "build"
     },
     {
+<<<<<<< HEAD
       "name": "jest-junit",
       "version": "^13",
+=======
+      "name": "got",
+      "version": "11.8.5",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "build"
     },
     {
       "name": "jest",
+<<<<<<< HEAD
       "version": "^27",
+=======
+      "type": "build"
+    },
+    {
+      "name": "jest-junit",
+      "version": "^13",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "build"
     },
     {
@@ -66,7 +83,11 @@
     },
     {
       "name": "npm-check-updates",
+<<<<<<< HEAD
       "version": "^12",
+=======
+      "version": "^15",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "build"
     },
     {
@@ -75,7 +96,10 @@
     },
     {
       "name": "ts-jest",
+<<<<<<< HEAD
       "version": "^27",
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "build"
     },
     {
@@ -88,7 +112,11 @@
     },
     {
       "name": "aws-cdk-lib",
+<<<<<<< HEAD
       "version": "^2.37.1",
+=======
+      "version": "^2.31.0",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       "type": "runtime"
     },
     {

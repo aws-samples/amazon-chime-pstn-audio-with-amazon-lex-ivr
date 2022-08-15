@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+<<<<<<< HEAD
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.95.0",
@@ -10,3 +11,10 @@
     "@aws-sdk/lib-dynamodb": "^3.95.0"
   }
 }
+=======
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.95.0",
+    "@aws-sdk/lib-dynamodb": "^3.95.0"
+  }
+}
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441

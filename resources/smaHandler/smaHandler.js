@@ -3,6 +3,7 @@ var lexBotAliasId = process.env['LEX_BOT_ALIAS_ID'];
 var accountId = process.env['ACCOUNT_ID'];
 var voiceConnectorArn = process.env['VOICE_CONNECTOR_ARN'];
 var departmentDirectory = process.env['DEPARTMENT_DIRECTORY'];
+<<<<<<< HEAD
 var lambdaRegion = process.env['REGION'];
 
 import {
@@ -14,6 +15,23 @@ const lexClient = new LexRuntimeV2Client({ region: lambdaRegion });
 
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { ddbDocClient } from './libs/ddbDocClient';
+=======
+var REGION = process.env['REGION'];
+
+import { GetCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+
+const ddbClient = new DynamoDBClient({ region: REGION });
+const marshallOptions = {
+  convertEmptyValues: false,
+  removeUndefinedValues: true,
+  convertClassInstanceToMap: false,
+};
+
+const unmarshallOptions = { wrapNumbers: false };
+const translateConfig = { marshallOptions, unmarshallOptions };
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
 
 async function getRoute(department) {
   const params = {
@@ -33,6 +51,7 @@ async function getRoute(department) {
     console.log(`Error: ${err}`);
   }
 }
+<<<<<<< HEAD
 
 async function startSessions(event) {
   const putSessionCommandParams = {
@@ -60,17 +79,25 @@ async function startSessions(event) {
   }
 }
 
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
 exports.handler = async (event, context, callback) => {
   console.log('Lambda is invoked with calldetails:' + JSON.stringify(event));
   let actions;
   switch (event.InvocationEventType) {
     case 'NEW_INBOUND_CALL':
       console.log('NEW INBOUND CALL');
+<<<<<<< HEAD
       await startSessions(event);
       speakAction.Parameters.CallId = event.CallDetails.Participants[0].CallId;
       startBotConversationAction.Parameters.Configuration.SessionState.SessionAttributes.phoneNumber =
         event.CallDetails.Participants[0].From;
       actions = [speakAction, startBotConversationAction];
+=======
+      startBotConversationAction.Parameters.Configuration.SessionState.SessionAttributes.phoneNumber =
+        event.CallDetails.Participants[0].From;
+      actions = [startBotConversationAction];
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
       break;
     case 'RINGING':
       console.log('RINGING');
@@ -141,13 +168,37 @@ exports.handler = async (event, context, callback) => {
 var startBotConversationAction = {
   Type: 'StartBotConversation',
   Parameters: {
+<<<<<<< HEAD
     BotAliasArn: `arn:aws:lex:${lambdaRegion}:${accountId}:bot-alias/${lexBotId}/${lexBotAliasId}`,
+=======
+    BotAliasArn:
+      'arn:aws:lex:us-east-1:' +
+      accountId +
+      ':bot-alias/' +
+      lexBotId +
+      '/' +
+      lexBotAliasId,
+    LocaleId: 'en_US',
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
     Configuration: {
       SessionState: {
         SessionAttributes: {
           phoneNumber: '',
         },
+<<<<<<< HEAD
       },
+=======
+        DialogAction: {
+          Type: 'ElicitIntent',
+        },
+      },
+      WelcomeMessages: [
+        {
+          Content: 'What department would you like to be connected to?',
+          ContentType: 'PlainText',
+        },
+      ],
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
     },
   },
 };
@@ -188,6 +239,7 @@ var hangupAction = {
     ParticipantTag: '',
   },
 };
+<<<<<<< HEAD
 var speakAction = {
   Type: 'Speak',
   Parameters: {
@@ -199,3 +251,5 @@ var speakAction = {
     VoiceId: 'Kimberly',
   },
 };
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441

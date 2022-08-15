@@ -209,6 +209,7 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
+<<<<<<< HEAD
           "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@types/prettier'"
         },
         {
@@ -222,6 +223,21 @@
         },
         {
           "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@types/prettier'"
+=======
+          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@types/prettier,got'"
+        },
+        {
+          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@types/prettier,got'"
+        },
+        {
+          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@types/prettier,got'"
+        },
+        {
+          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@types/prettier,got'"
+        },
+        {
+          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@types/prettier,got'"
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
         },
         {
           "exec": "yarn install --check-files"

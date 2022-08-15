@@ -1568,6 +1568,7 @@ ldconfig
                 ],
                 "SampleUtterances": Array [
                   Object {
+<<<<<<< HEAD
                     "Utterance": "Call {Department} department",
                   },
                   Object {
@@ -1589,6 +1590,8 @@ ldconfig
                     "Utterance": "I want {Department} department",
                   },
                   Object {
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                     "Utterance": "Call {Department}",
                   },
                   Object {
@@ -1609,6 +1612,7 @@ ldconfig
                   Object {
                     "Utterance": "I want {Department}",
                   },
+<<<<<<< HEAD
                   Object {
                     "Utterance": "Call {Department} office",
                   },
@@ -1630,6 +1634,8 @@ ldconfig
                   Object {
                     "Utterance": "I want {Department} office",
                   },
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                 ],
                 "SlotPriorities": Array [
                   Object {
@@ -1640,7 +1646,11 @@ ldconfig
                 "Slots": Array [
                   Object {
                     "Name": "Department",
+<<<<<<< HEAD
                     "SlotTypeName": "Departments",
+=======
+                    "SlotTypeName": "AMAZON.AlphaNumeric",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                     "ValueElicitationSetting": Object {
                       "PromptSpecification": Object {
                         "MaxRetries": 2,
@@ -1660,8 +1670,23 @@ ldconfig
                 ],
               },
               Object {
+<<<<<<< HEAD
                 "DialogCodeHook": Object {
                   "Enabled": true,
+=======
+                "IntentClosingSetting": Object {
+                  "ClosingResponse": Object {
+                    "MessageGroupsList": Array [
+                      Object {
+                        "Message": Object {
+                          "PlainTextMessage": Object {
+                            "Value": "Sorry I am having trouble understanding. Can you say the person's name again?",
+                          },
+                        },
+                      },
+                    ],
+                  },
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
                 },
                 "Name": "FallbackIntent",
                 "ParentIntentSignature": "AMAZON.FallbackIntent",
@@ -1669,6 +1694,7 @@ ldconfig
             ],
             "LocaleId": "en_US",
             "NluConfidenceThreshold": 0.4,
+<<<<<<< HEAD
             "SlotTypes": Array [
               Object {
                 "Description": "Possible Departments",
@@ -1700,6 +1726,8 @@ ldconfig
                 },
               },
             ],
+=======
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
             "VoiceSettings": Object {
               "VoiceId": "Kimberly",
             },
@@ -2564,7 +2592,11 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
+<<<<<<< HEAD
           "S3Key": "de34cba41f806829aa52c7089cfdb18a9870ed23fd08a381147c465e42a74af5.zip",
+=======
+          "S3Key": "3e94ca6744235767c0d30ed47f293848ea62f68c282a0f043df5323420e76997.zip",
+>>>>>>> 4eba3666644fef062d0b3b063ad6b2c070000441
         },
         "Environment": Object {
           "Variables": Object {
