@@ -5,7 +5,7 @@ Object {
   "Outputs": Object {
     "password": Object {
       "Value": Object {
-        "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
+        "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
       },
     },
     "pstnPhoneNumber": Object {
@@ -36,7 +36,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
+              "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
             },
           ],
         ],
@@ -224,12 +224,12 @@ Object {
           "Ref": "AsteriskasteriskEipB136F44F",
         },
         "InstanceId": Object {
-          "Ref": "AsteriskInstanceDB1344623da5f8b1f98fcda5",
+          "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "AsteriskInstanceDB1344623da5f8b1f98fcda5": Object {
+    "AsteriskInstanceDB134462a61f00fa6bf13398": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
@@ -545,6 +545,7 @@ python3 /etc/polly/createWav.py -file science -text 'Thank you for calling scien
 python3 /etc/polly/createWav.py -file art -text 'Thank you for calling art department. Goodbye.'
 python3 /etc/polly/createWav.py -file history -text 'Thank you for calling history department. Goodbye.'
 python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
+python3 /etc/polly/createWav.py -file unknown -text \\"Thank you for calling.  Sorry I couldn't find a department\\"
 
 groupadd asterisk
 useradd -r -d /var/lib/asterisk -g asterisk asterisk
@@ -743,7 +744,7 @@ ldconfig
               "",
               Array [
                 "#!/bin/bash
-# fingerprint: a50d623b7866f757
+# fingerprint: 2bf74b2022d1d6de
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -754,7 +755,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB1344623da5f8b1f98fcda5 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB134462a61f00fa6bf13398 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -775,7 +776,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB1344623da5f8b1f98fcda5 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB134462a61f00fa6bf13398 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -1568,6 +1569,27 @@ ldconfig
                 ],
                 "SampleUtterances": Array [
                   Object {
+                    "Utterance": "Call {Department} department",
+                  },
+                  Object {
+                    "Utterance": "{Department} department",
+                  },
+                  Object {
+                    "Utterance": "Dial {Department} department",
+                  },
+                  Object {
+                    "Utterance": "Talk to {Department} department",
+                  },
+                  Object {
+                    "Utterance": "I need {Department} department",
+                  },
+                  Object {
+                    "Utterance": "It's {Department} department",
+                  },
+                  Object {
+                    "Utterance": "I want {Department} department",
+                  },
+                  Object {
                     "Utterance": "Call {Department}",
                   },
                   Object {
@@ -1588,6 +1610,27 @@ ldconfig
                   Object {
                     "Utterance": "I want {Department}",
                   },
+                  Object {
+                    "Utterance": "Call {Department} office",
+                  },
+                  Object {
+                    "Utterance": "{Department} office",
+                  },
+                  Object {
+                    "Utterance": "Dial {Department} office",
+                  },
+                  Object {
+                    "Utterance": "Talk to {Department} office",
+                  },
+                  Object {
+                    "Utterance": "I need {Department} office",
+                  },
+                  Object {
+                    "Utterance": "It's {Department} office",
+                  },
+                  Object {
+                    "Utterance": "I want {Department} office",
+                  },
                 ],
                 "SlotPriorities": Array [
                   Object {
@@ -1598,7 +1641,7 @@ ldconfig
                 "Slots": Array [
                   Object {
                     "Name": "Department",
-                    "SlotTypeName": "AMAZON.AlphaNumeric",
+                    "SlotTypeName": "Departments",
                     "ValueElicitationSetting": Object {
                       "PromptSpecification": Object {
                         "MaxRetries": 2,
@@ -1618,6 +1661,9 @@ ldconfig
                 ],
               },
               Object {
+                "DialogCodeHook": Object {
+                  "Enabled": true,
+                },
                 "IntentClosingSetting": Object {
                   "ClosingResponse": Object {
                     "MessageGroupsList": Array [
@@ -1637,6 +1683,37 @@ ldconfig
             ],
             "LocaleId": "en_US",
             "NluConfidenceThreshold": 0.4,
+            "SlotTypes": Array [
+              Object {
+                "Description": "Possible Departments",
+                "Name": "Departments",
+                "SlotTypeValues": Array [
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "art",
+                    },
+                  },
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "history",
+                    },
+                  },
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "math",
+                    },
+                  },
+                  Object {
+                    "SampleValue": Object {
+                      "Value": "science",
+                    },
+                  },
+                ],
+                "ValueSelectionSetting": Object {
+                  "ResolutionStrategy": "ORIGINAL_VALUE",
+                },
+              },
+            ],
             "VoiceSettings": Object {
               "VoiceId": "Kimberly",
             },
@@ -2501,7 +2578,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "724428de18c3c077baab3e19a6ff51bd47ad799010dcd635cc57bb37246a7ef3.zip",
+          "S3Key": "9f9389f0ca96fc371d50d80161606150422713525ec7afe16200fb331e521fc6.zip",
         },
         "Environment": Object {
           "Variables": Object {

@@ -110,14 +110,14 @@ exports.handler = async (event, context, callback) => {
                 .Value.InterpretedValue;
             route = await getRoute(lexDepartment);
             if ({ route } == 'undefined') {
-              lexDepartment = 'Unknown';
+              lexDepartment = 'unknown';
               route.service = 'voiceConnector';
               route.number = '000000';
             }
             console.log(`Route from DynamoDB: ${route}`);
             console.log(`lexDepartment from event: ${lexDepartment}`);
           } else {
-            lexDepartment = 'Unknown';
+            lexDepartment = 'unknown';
             route.service = 'voiceConnector';
             route.number = '000000';
           }

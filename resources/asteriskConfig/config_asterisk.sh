@@ -16,6 +16,7 @@ python3 /etc/polly/createWav.py -file science -text 'Thank you for calling scien
 python3 /etc/polly/createWav.py -file art -text 'Thank you for calling art department. Goodbye.'
 python3 /etc/polly/createWav.py -file history -text 'Thank you for calling history department. Goodbye.'
 python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
+python3 /etc/polly/createWav.py -file unknown -text "Thank you for calling.  Sorry I couldn't find a department"
 
 groupadd asterisk
 useradd -r -d /var/lib/asterisk -g asterisk asterisk
