@@ -155,6 +155,7 @@ export class Lex extends Construct {
                 {
                   name: 'Department',
                   slotTypeName: 'Departments',
+
                   valueElicitationSetting: {
                     slotConstraint: 'Required',
                     promptSpecification: {

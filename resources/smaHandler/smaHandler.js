@@ -105,9 +105,9 @@ exports.handler = async (event, context, callback) => {
             'Department' in
             event.ActionData.IntentResult.SessionState.Intent.Slots
           ) {
-            lexDepartment =
+            lexDepartment = lexDepartment =
               event.ActionData.IntentResult.SessionState.Intent.Slots.Department
-                .Value.InterpretedValue;
+                .Value.ResolvedValues[0];
             route = await getRoute(lexDepartment);
             if ({ route } == 'undefined') {
               lexDepartment = 'unknown';
