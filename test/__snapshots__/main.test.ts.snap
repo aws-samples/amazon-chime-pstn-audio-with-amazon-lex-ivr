@@ -2578,7 +2578,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "b779d07ef8e12e243319cac03496232b2373106fdab02a22622b711fdf644ff6.zip",
+          "S3Key": "40a5b593de122966bb5323cfd14778c13da5e7423e4335b6b4c2927afc3e1146.zip",
         },
         "Environment": Object {
           "Variables": Object {
