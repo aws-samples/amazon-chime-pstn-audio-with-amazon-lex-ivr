@@ -997,17 +997,7 @@ ldconfig
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Principal": Object {
-                "Service": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "ec2.",
-                      Object {
-                        "Ref": "AWS::URLSuffix",
-                      },
-                    ],
-                  ],
-                },
+                "Service": "ec2.amazonaws.com",
               },
             },
           ],
@@ -2578,7 +2568,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "76b1c088364cd7d645fd95da59bfa1edc53a3f018aeeba33ca2d2573e66d7033.zip",
+          "S3Key": "729608e60986c1e66807d8cde7bbd352006f5ccf45ee34f62bdcc40d114a5547.zip",
         },
         "Environment": Object {
           "Variables": Object {
