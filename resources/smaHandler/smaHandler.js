@@ -226,9 +226,9 @@ var speakAction = {
   Parameters: {
     Text: 'What department would you like to be connected to?',
     CallId: '',
-    Engine: 'standard',
+    Engine: 'neural',
     LanguageCode: 'en-US',
     TextType: 'text',
-    VoiceId: 'Kimberly',
+    VoiceId: 'Joanna',
   },
 };

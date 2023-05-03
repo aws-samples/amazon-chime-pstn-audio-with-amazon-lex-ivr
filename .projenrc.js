@@ -19,8 +19,12 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     allowedUsernames: ['schuettc'],
   },
   autoApproveUpgrades: true,
-  devDeps: ['@types/prettier@2.6.0', 'esbuild', 'got@11.8.5', 'ts-node@^10'],
-  deps: ['cdk-amazon-chime-resources'],
+  deps: [
+    'cdk-amazon-chime-resources',
+    '@aws-sdk/client-lex-runtime-v2',
+    '@aws-sdk/lib-dynamodb',
+    '@aws-sdk/client-dynamodb',
+  ],
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   defaultReleaseBranch: 'main',
   scripts: {

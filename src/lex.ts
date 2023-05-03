@@ -79,7 +79,8 @@ export class Lex extends Construct {
           localeId: 'en_US',
           nluConfidenceThreshold: 0.4,
           voiceSettings: {
-            voiceId: 'Kimberly',
+            voiceId: 'Joanna',
+            engine: 'neural',
           },
           description: 'English_US',
           slotTypes: [
@@ -159,6 +160,22 @@ export class Lex extends Construct {
                   valueElicitationSetting: {
                     slotConstraint: 'Required',
                     promptSpecification: {
+                      promptAttemptsSpecification: {
+                        Initial: {
+                          allowInterrupt: true,
+                          allowedInputTypes: {
+                            allowAudioInput: true,
+                            allowDtmfInput: false,
+                          },
+                          audioAndDtmfInputSpecification: {
+                            startTimeoutMs: 1000,
+                            audioSpecification: {
+                              endTimeoutMs: 1000,
+                              maxLengthMs: 10000,
+                            },
+                          },
+                        },
+                      },
                       maxRetries: 2,
                       messageGroupsList: [
                         {

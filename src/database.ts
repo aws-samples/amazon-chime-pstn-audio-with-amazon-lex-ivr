@@ -21,6 +21,7 @@ export class Database extends Construct {
     });
 
     new cr.AwsCustomResource(this, 'initTable', {
+      installLatestAwsSdk: false,
       onCreate: {
         service: 'DynamoDB',
         action: 'batchWriteItem',
