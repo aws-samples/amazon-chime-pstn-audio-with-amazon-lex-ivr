@@ -1,14 +1,19 @@
 import * as path from 'path';
 import { Stack, Duration, RemovalPolicy, aws_lex as lex } from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as logs from 'aws-cdk-lib/aws-logs';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import {
+  Role,
+  ServicePrincipal,
+  PolicyDocument,
+  PolicyStatement,
+} from 'aws-cdk-lib/aws-iam';
+import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Bucket, BlockPublicAccess, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 interface LexProps {
-  departmentDirectory: dynamodb.Table;
+  departmentDirectory: Table;
 }
 
 export class Lex extends Construct {
@@ -18,13 +23,11 @@ export class Lex extends Construct {
   constructor(scope: Construct, id: string, props: LexProps) {
     super(scope, id);
 
-    const lexCodeHook = new lambda.Function(this, 'lexCodeHook', {
-      runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset(
-        path.join(__dirname, '../resources/lexHandler'),
-      ),
+    const lexCodeHook = new Function(this, 'lexCodeHook', {
+      runtime: Runtime.PYTHON_3_10,
+      code: Code.fromAsset(path.join(__dirname, 'resources/lexHandler')),
       handler: 'index.lambda_handler',
-      architecture: lambda.Architecture.ARM_64,
+      architecture: Architecture.ARM_64,
       timeout: Duration.minutes(1),
       environment: {
         DEPARTMENT_TABLE: props.departmentDirectory.tableName,
@@ -33,27 +36,28 @@ export class Lex extends Construct {
 
     props.departmentDirectory.grantReadWriteData(lexCodeHook);
 
-    const lexLogGroup = new logs.LogGroup(this, 'lexLogGroup', {
-      retention: logs.RetentionDays.ONE_WEEK,
+    const lexLogGroup = new LogGroup(this, 'lexLogGroup', {
+      retention: RetentionDays.ONE_WEEK,
     });
 
-    const lexAudioBucket = new s3.Bucket(this, 'lexAudioBucket', {
+    const lexAudioBucket = new Bucket(this, 'lexAudioBucket', {
       publicReadAccess: false,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
+      objectOwnership: ObjectOwnership.BUCKET_OWNER_PREFERRED,
       autoDeleteObjects: true,
     });
 
-    const lexRole = new iam.Role(this, 'lexRole', {
-      assumedBy: new iam.ServicePrincipal('lex.amazonaws.com'),
+    const lexRole = new Role(this, 'lexRole', {
+      assumedBy: new ServicePrincipal('lex.amazonaws.com'),
       inlinePolicies: {
-        ['lexPolicy']: new iam.PolicyDocument({
+        ['lexPolicy']: new PolicyDocument({
           statements: [
-            new iam.PolicyStatement({
+            new PolicyStatement({
               resources: ['*'],
               actions: ['polly:SynthesizeSpeech'],
             }),
-            new iam.PolicyStatement({
+            new PolicyStatement({
               resources: [lexLogGroup.logGroupArn],
               actions: [
                 'logs:CreateLogGroup',
@@ -314,7 +318,7 @@ export class Lex extends Construct {
     });
 
     lexCodeHook.addPermission('Lex Invocation', {
-      principal: new iam.ServicePrincipal('lexv2.amazonaws.com'),
+      principal: new ServicePrincipal('lexv2.amazonaws.com'),
       sourceArn: `arn:aws:lex:${Stack.of(this).region}:${
         Stack.of(this).account
       }:bot-alias/*`,

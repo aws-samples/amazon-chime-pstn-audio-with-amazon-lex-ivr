@@ -1,117 +1,153 @@
+/* eslint-disable @typescript-eslint/indent */
 import { Duration, Stack } from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as chime from 'cdk-amazon-chime-resources';
+import {
+  CfnEIP,
+  Vpc,
+  SubnetType,
+  SecurityGroup,
+  Peer,
+  Port,
+  MachineImage,
+  Instance,
+  InstanceType,
+  InstanceClass,
+  InstanceSize,
+  CloudFormationInit,
+  InitConfig,
+  InitFile,
+  InitCommand,
+  CfnEIPAssociation,
+  UserData,
+} from 'aws-cdk-lib/aws-ec2';
+import {
+  Role,
+  ServicePrincipal,
+  PolicyDocument,
+  PolicyStatement,
+  ManagedPolicy,
+} from 'aws-cdk-lib/aws-iam';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { ChimeVoiceConnector, Protocol } from 'cdk-amazon-chime-resources';
+
 import { Construct } from 'constructs';
 
 export class Asterisk extends Construct {
   public readonly smaVoiceConnectorArn: string;
   public readonly smaVoiceConnectorHostname: string;
   public readonly instanceId: string;
-  public readonly asteriskEip: ec2.CfnEIP;
+  public readonly asteriskEip: CfnEIP;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.asteriskEip = new ec2.CfnEIP(this, 'asteriskEip');
+    this.asteriskEip = new CfnEIP(this, 'asteriskEip');
 
-    const vpc = new ec2.Vpc(this, 'VPC', {
+    const vpc = new Vpc(this, 'VPC', {
       natGateways: 0,
       subnetConfiguration: [
         {
           cidrMask: 24,
           name: 'AsteriskPublic',
-          subnetType: ec2.SubnetType.PUBLIC,
+          subnetType: SubnetType.PUBLIC,
         },
       ],
     });
 
-    const securityGroup = new ec2.SecurityGroup(this, 'AsteriskSecurityGroup', {
+    const securityGroup = new SecurityGroup(this, 'AsteriskSecurityGroup', {
       vpc,
       description: 'Security Group for Asterisk Instance',
       allowAllOutbound: true,
     });
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('3.80.16.0/23'),
-      ec2.Port.udp(5060),
+      Peer.ipv4('3.80.16.0/23'),
+      Port.udp(5060),
       'Allow Chime Voice Connector Signaling Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('3.80.16.0/23'),
-      ec2.Port.tcpRange(5060, 5061),
+      Peer.ipv4('3.80.16.0/23'),
+      Port.tcpRange(5060, 5061),
       'Allow Chime Voice Connector Signaling Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('99.77.253.0/24'),
-      ec2.Port.udp(5060),
+      Peer.ipv4('99.77.253.0/24'),
+      Port.udp(5060),
       'Allow Chime Voice Connector Signaling Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('99.77.253.0/24'),
-      ec2.Port.tcpRange(5060, 5061),
+      Peer.ipv4('99.77.253.0/24'),
+      Port.tcpRange(5060, 5061),
       'Allow Chime Voice Connector Signaling Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('99.77.253.0/24'),
-      ec2.Port.udpRange(5000, 65000),
+      Peer.ipv4('99.77.253.0/24'),
+      Port.udpRange(5000, 65000),
       'Allow Chime Voice Connector Signaling Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('3.80.16.0/23'),
-      ec2.Port.udpRange(5000, 65000),
+      Peer.ipv4('3.80.16.0/23'),
+      Port.udpRange(5000, 65000),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('99.77.253.0/24'),
-      ec2.Port.udpRange(5000, 65000),
+      Peer.ipv4('99.77.253.0/24'),
+      Port.udpRange(5000, 65000),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('52.55.62.128/25'),
-      ec2.Port.udpRange(1024, 65535),
+      Peer.ipv4('52.55.62.128/25'),
+      Port.udpRange(1024, 65535),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('52.55.63.0/25'),
-      ec2.Port.udpRange(1024, 65535),
+      Peer.ipv4('52.55.63.0/25'),
+      Port.udpRange(1024, 65535),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('34.212.95.128/25'),
-      ec2.Port.udpRange(1024, 65535),
+      Peer.ipv4('34.212.95.128/25'),
+      Port.udpRange(1024, 65535),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4('34.223.21.0/25'),
-      ec2.Port.udpRange(1024, 65535),
+      Peer.ipv4('34.223.21.0/25'),
+      Port.udpRange(1024, 65535),
       'Allow Chime Voice Connector Media Access',
     );
     securityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(8088),
+      Peer.anyIpv4(),
+      Port.tcp(8088),
       'Allow Websocket Access',
     );
 
-    const asteriskEc2Role = new iam.Role(this, 'asteriskEc2Role', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+    const asteriskEc2Role = new Role(this, 'asteriskEc2Role', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
       inlinePolicies: {
-        ['pollyPolicy']: new iam.PolicyDocument({
+        ['pollyPolicy']: new PolicyDocument({
           statements: [
-            new iam.PolicyStatement({
+            new PolicyStatement({
               resources: ['*'],
               actions: ['polly:SynthesizeSpeech'],
             }),
           ],
         }),
+        ['cloudformationPolicy']: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              resources: ['*'],
+              actions: [
+                'cloudformation:SignalResource',
+                'cloudformation:DescribeStackResource',
+              ],
+            }),
+          ],
+        }),
       },
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'AmazonSSMManagedInstanceCore',
-        ),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
       ],
     });
 
-    const smaVoiceConnector = new chime.ChimeVoiceConnector(
+    const smaVoiceConnector = new ChimeVoiceConnector(
       this,
       'smaVoiceConnector',
       {
@@ -119,7 +155,7 @@ export class Asterisk extends Construct {
           {
             host: this.asteriskEip.ref,
             port: 5060,
-            protocol: chime.Protocol.UDP,
+            protocol: Protocol.UDP,
             priority: 1,
             weight: 1,
           },
@@ -128,85 +164,93 @@ export class Asterisk extends Construct {
       },
     );
 
-    const ami = new ec2.AmazonLinuxImage({
-      generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      cpuType: ec2.AmazonLinuxCpuType.ARM_64,
+    const parameterName =
+      '/aws/service/canonical/ubuntu/server/jammy/stable/current/arm64/hvm/ebs-gp2/ami-id';
+    const ubuntuAmiId = StringParameter.valueForStringParameter(
+      this,
+      parameterName,
+    );
+
+    const ubuntuAmi = MachineImage.genericLinux({
+      'us-east-1': ubuntuAmiId,
     });
 
-    const ec2Instance = new ec2.Instance(this, 'Instance', {
+    const userData = UserData.forLinux();
+    userData.addCommands(
+      'apt-get update',
+      'while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do sleep 1 ; done',
+      'mkdir -p /opt/aws/bin',
+      'mkdir -p /var/lib/asterisk/sounds/en/',
+      'apt-get install -y python3-pip unzip jq asterisk',
+      'pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz',
+      'ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup',
+      'ln -s /usr/local/bin/cfn-* /opt/aws/bin/',
+      'curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"',
+      'unzip -q awscliv2.zip',
+      './aws/install',
+    );
+
+    const ec2Instance = new Instance(this, 'Instance', {
       vpc,
-      instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.C6G,
-        ec2.InstanceSize.MEDIUM,
-      ),
-      machineImage: ami,
-      init: ec2.CloudFormationInit.fromConfigSets({
+      instanceType: InstanceType.of(InstanceClass.C6G, InstanceSize.MEDIUM),
+      machineImage: ubuntuAmi,
+      userData: userData,
+      init: CloudFormationInit.fromConfigSets({
         configSets: {
-          default: ['install', 'config'],
+          default: ['config'],
         },
         configs: {
-          install: new ec2.InitConfig([
-            ec2.InitFile.fromObject('/etc/config.json', {
+          config: new InitConfig([
+            InitFile.fromObject('/etc/config.json', {
               SMAVoiceConnector: `${smaVoiceConnector.voiceConnectorId}.voiceconnector.chime.aws`,
               IP: this.asteriskEip.ref,
               REGION: Stack.of(this).region,
             }),
-            ec2.InitFile.fromFileInline(
-              '/etc/install.sh',
-              './resources/asteriskConfig/install.sh',
-            ),
-            ec2.InitCommand.shellCommand('chmod +x /etc/install.sh'),
-            ec2.InitCommand.shellCommand('cd /tmp'),
-            ec2.InitCommand.shellCommand(
-              '/etc/install.sh 2>&1 | tee /var/log/asterisk_install.log',
-            ),
-          ]),
-          config: new ec2.InitConfig([
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/pjsip.conf',
-              './resources/asteriskConfig/pjsip.conf',
+              'src/resources/asteriskConfig/pjsip.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/asterisk.conf',
-              './resources/asteriskConfig/asterisk.conf',
+              'src/resources/asteriskConfig/asterisk.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/http.conf',
-              './resources/asteriskConfig/http.conf',
+              'src/resources/asteriskConfig/http.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/rtp.conf',
-              './resources/asteriskConfig/rtp.conf',
+              'src/resources/asteriskConfig/rtp.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/logger.conf',
-              './resources/asteriskConfig/logger.conf',
+              'src/resources/asteriskConfig/logger.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/extensions.conf',
-              './resources/asteriskConfig/extensions.conf',
+              'src/resources/asteriskConfig/extensions.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/asterisk/modules.conf',
-              './resources/asteriskConfig/modules.conf',
+              'src/resources/asteriskConfig/modules.conf',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/config_asterisk.sh',
-              './resources/asteriskConfig/config_asterisk.sh',
+              'src/resources/asteriskConfig/config_asterisk.sh',
             ),
-            ec2.InitFile.fromFileInline(
+            InitFile.fromFileInline(
               '/etc/polly/createWav.py',
-              './resources/asteriskConfig/createWav.py',
+              'src/resources/asteriskConfig/createWav.py',
             ),
-            ec2.InitCommand.shellCommand('chmod +x /etc/config_asterisk.sh'),
-            ec2.InitCommand.shellCommand(
+            InitCommand.shellCommand('chmod +x /etc/config_asterisk.sh'),
+            InitCommand.shellCommand(
               '/etc/config_asterisk.sh 2>&1 | tee /var/log/asterisk_config.log',
             ),
           ]),
         },
       }),
       initOptions: {
-        timeout: Duration.minutes(20),
+        timeout: Duration.minutes(5),
         includeUrl: true,
         includeRole: true,
         printLog: true,
@@ -215,7 +259,7 @@ export class Asterisk extends Construct {
       role: asteriskEc2Role,
     });
 
-    new ec2.CfnEIPAssociation(this, 'EIP Association', {
+    new CfnEIPAssociation(this, 'EIP Association', {
       eip: this.asteriskEip.ref,
       instanceId: ec2Instance.instanceId,
     });

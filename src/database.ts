@@ -1,33 +1,36 @@
 import { RemovalPolicy } from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as cr from 'aws-cdk-lib/custom-resources';
+import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
+import {
+  AwsCustomResource,
+  PhysicalResourceId,
+  AwsCustomResourcePolicy,
+} from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 
 export class Database extends Construct {
-  public departmentDirectory: dynamodb.Table;
+  public departmentDirectory: Table;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.departmentDirectory = new dynamodb.Table(this, 'departmentDirectory', {
-      tableName: 'Departments',
+    this.departmentDirectory = new Table(this, 'departmentDirectory', {
       partitionKey: {
         name: 'department_name',
-        type: dynamodb.AttributeType.STRING,
+        type: AttributeType.STRING,
       },
       removalPolicy: RemovalPolicy.DESTROY,
       timeToLiveAttribute: 'TTL',
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      billingMode: BillingMode.PAY_PER_REQUEST,
     });
 
-    new cr.AwsCustomResource(this, 'initTable', {
+    new AwsCustomResource(this, 'initTable', {
       installLatestAwsSdk: false,
       onCreate: {
         service: 'DynamoDB',
         action: 'batchWriteItem',
         parameters: {
           RequestItems: {
-            Departments: [
+            [this.departmentDirectory.tableName]: [
               {
                 PutRequest: {
                   Item: {
@@ -67,12 +70,12 @@ export class Database extends Construct {
             ],
           },
         },
-        physicalResourceId: cr.PhysicalResourceId.of(
+        physicalResourceId: PhysicalResourceId.of(
           this.departmentDirectory.tableName + '_initialization',
         ),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      policy: AwsCustomResourcePolicy.fromSdkCalls({
+        resources: AwsCustomResourcePolicy.ANY_RESOURCE,
       }),
     });
   }

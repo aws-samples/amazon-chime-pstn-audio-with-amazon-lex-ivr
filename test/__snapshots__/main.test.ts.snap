@@ -3,6 +3,13 @@
 exports[`Snapshot 1`] = `
 Object {
   "Mappings": Object {
+    "AsteriskInstanceAmiMapD5119D2F": Object {
+      "us-east-1": Object {
+        "ami": Object {
+          "Ref": "SsmParameterValueawsservicecanonicalubuntuserverjammystablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+      },
+    },
     "DefaultCrNodeVersionMap": Object {
       "af-south-1": Object {
         "value": "nodejs16.x",
@@ -108,7 +115,7 @@ Object {
   "Outputs": Object {
     "password": Object {
       "Value": Object {
-        "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
+        "Ref": "AsteriskInstanceDB13446206bae197e0d9071b",
       },
     },
     "pstnPhoneNumber": Object {
@@ -139,7 +146,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
+              "Ref": "AsteriskInstanceDB13446206bae197e0d9071b",
             },
           ],
         ],
@@ -166,9 +173,9 @@ Object {
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmarm64gp2C96584B6F00A464EAD1953AFF4B05118Parameter": Object {
-      "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2",
-      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+    "SsmParameterValueawsservicecanonicalubuntuserverjammystablecurrentarm64hvmebsgp2amiidC96584B6F00A464EAD1953AFF4B05118Parameter": Object {
+      "Default": "/aws/service/canonical/ubuntu/server/jammy/stable/current/arm64/hvm/ebs-gp2/ami-id",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
   },
   "Resources": Object {
@@ -335,16 +342,16 @@ Object {
           "Ref": "AsteriskasteriskEipB136F44F",
         },
         "InstanceId": Object {
-          "Ref": "AsteriskInstanceDB134462a61f00fa6bf13398",
+          "Ref": "AsteriskInstanceDB13446206bae197e0d9071b",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "AsteriskInstanceDB134462a61f00fa6bf13398": Object {
+    "AsteriskInstanceDB13446206bae197e0d9071b": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
-          "Timeout": "PT20M",
+          "Timeout": "PT5M",
         },
       },
       "DependsOn": Array [
@@ -396,7 +403,7 @@ same => n,Dial(PJSIP/agent,,b(handler^addheader^1(\${LEX_INFO})))
 same => n,Hangup()
 
 same => n(playAudio),NoOp(PlayAudio)
-same => n,Playback(\${LEX_INFO})
+same => n,Playback(/var/lib/asterisk/sounds/en/\${LEX_INFO})
 same => n,Hangup()
 
 
@@ -637,6 +644,33 @@ stunaddr=stun.kinesisvideo.us-east-1.amazonaws.com:443",
                 "mode": "000644",
                 "owner": "root",
               },
+              "/etc/config.json": Object {
+                "content": Object {
+                  "IP": Object {
+                    "Ref": "AsteriskasteriskEipB136F44F",
+                  },
+                  "REGION": Object {
+                    "Ref": "AWS::Region",
+                  },
+                  "SMAVoiceConnector": Object {
+                    "Fn::Join": Array [
+                      "",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "AsterisksmaVoiceConnectorvoiceConnectorRequestpstnCustomResource6970C2AE",
+                            "voiceConnectorId",
+                          ],
+                        },
+                        ".voiceconnector.chime.aws",
+                      ],
+                    ],
+                  },
+                },
+                "group": "root",
+                "mode": "000644",
+                "owner": "root",
+              },
               "/etc/config_asterisk.sh": Object {
                 "content": "#!/bin/bash -xe
 IP=$( jq -r '.IP' /etc/config.json )
@@ -658,14 +692,15 @@ python3 /etc/polly/createWav.py -file history -text 'Thank you for calling histo
 python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
 python3 /etc/polly/createWav.py -file unknown -text \\"Thank you for calling.  Sorry I couldn't find a department\\"
 
-groupadd asterisk
-useradd -r -d /var/lib/asterisk -g asterisk asterisk
-usermod -aG audio,dialout asterisk
 chown -R asterisk.asterisk /etc/asterisk
 chown -R asterisk.asterisk /var/lib/asterisk/sounds/en
 chown -R asterisk.asterisk /var/{lib,log,spool}/asterisk
 
-systemctl start asterisk
+echo '0 * * * * /sbin/asterisk -rx \\"core reload\\"' > /etc/asterisk/crontab.txt 
+crontab /etc/asterisk/crontab.txt
+
+systemctl restart asterisk
+/sbin/asterisk -rx \\"core reload\\"
 
 ",
                 "encoding": "plain",
@@ -733,86 +768,8 @@ print('wav file created: ' + wavFile)
           },
           "configSets": Object {
             "default": Array [
-              "install",
               "config",
             ],
-          },
-          "install": Object {
-            "commands": Object {
-              "000": Object {
-                "command": "chmod +x /etc/install.sh",
-              },
-              "001": Object {
-                "command": "cd /tmp",
-              },
-              "002": Object {
-                "command": "/etc/install.sh 2>&1 | tee /var/log/asterisk_install.log",
-              },
-            },
-            "files": Object {
-              "/etc/config.json": Object {
-                "content": Object {
-                  "IP": Object {
-                    "Ref": "AsteriskasteriskEipB136F44F",
-                  },
-                  "REGION": Object {
-                    "Ref": "AWS::Region",
-                  },
-                  "SMAVoiceConnector": Object {
-                    "Fn::Join": Array [
-                      "",
-                      Array [
-                        Object {
-                          "Fn::GetAtt": Array [
-                            "AsterisksmaVoiceConnectorvoiceConnectorRequestpstnCustomResource6970C2AE",
-                            "voiceConnectorId",
-                          ],
-                        },
-                        ".voiceconnector.chime.aws",
-                      ],
-                    ],
-                  },
-                },
-                "group": "root",
-                "mode": "000644",
-                "owner": "root",
-              },
-              "/etc/install.sh": Object {
-                "content": "#!/bin/bash -xe
-## Copyright Amazon.com Inc. or its affiliates.
-HOMEDIR=/home/ec2-user
-cd /tmp
-yum -y install make gcc gcc-c++ make subversion libxml2-devel ncurses-devel openssl-devel vim-enhanced man glibc-devel autoconf libnewt kernel-devel kernel-headers linux-headers openssl-devel zlib-devel libsrtp libsrtp-devel uuid libuuid-devel mariadb-server jansson-devel libsqlite3x libsqlite3x-devel epel-release.noarch bash-completion bash-completion-extras unixODBC unixODBC-devel libtool-ltdl libtool-ltdl-devel mysql-connector-odbc mlocate libiodbc sqlite sqlite-devel sql-devel.i686 sqlite-doc.noarch sqlite-tcl.x86_64 patch libedit-devel jq libcurl-devel git
-wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-18-current.tar.gz
-tar xvzf asterisk-18-current.tar.gz 
-cd asterisk-18*/
-./configure --libdir=/usr/lib64 --with-jansson-bundled
-make menuselect.makeopts
-menuselect/menuselect \\\\
-        --disable BUILD_NATIVE \\\\
-        --disable chan_sip \\\\
-        --disable chan_skinny \\\\
-        --disable format_mp3 \\\\
-        --enable cdr_csv \\\\
-        --enable res_snmp \\\\
-        --enable res_http_websocket \\\\
-        --enable res_curl \\\\
-        --enable res_config_curl \\\\
-        menuselect.makeopts
-make 
-make install
-make basic-pbx
-touch /etc/redhat-release
-make config
-ldconfig
-
-",
-                "encoding": "plain",
-                "group": "root",
-                "mode": "000644",
-                "owner": "root",
-              },
-            },
           },
         },
       },
@@ -829,7 +786,13 @@ ldconfig
           "Ref": "AsteriskInstanceInstanceProfile6D34C8D3",
         },
         "ImageId": Object {
-          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmarm64gp2C96584B6F00A464EAD1953AFF4B05118Parameter",
+          "Fn::FindInMap": Array [
+            "AsteriskInstanceAmiMapD5119D2F",
+            Object {
+              "Ref": "AWS::Region",
+            },
+            "ami",
+          ],
         },
         "InstanceType": "c6g.medium",
         "SecurityGroupIds": Array [
@@ -855,7 +818,18 @@ ldconfig
               "",
               Array [
                 "#!/bin/bash
-# fingerprint: 2bf74b2022d1d6de
+apt-get update
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do sleep 1 ; done
+mkdir -p /opt/aws/bin
+mkdir -p /var/lib/asterisk/sounds/en/
+apt-get install -y python3-pip unzip jq asterisk
+pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
+ln -s /usr/local/bin/cfn-* /opt/aws/bin/
+curl \\"https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip\\" -o \\"awscliv2.zip\\"
+unzip -q awscliv2.zip
+./aws/install
+# fingerprint: 40707a5d88d600f5
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -866,7 +840,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB134462a61f00fa6bf13398 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB13446206bae197e0d9071b --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -887,7 +861,7 @@ ldconfig
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource AsteriskInstanceDB134462a61f00fa6bf13398 --url https://cloudformation.",
+                " --resource AsteriskInstanceDB13446206bae197e0d9071b --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -1141,6 +1115,22 @@ ldconfig
               "Version": "2012-10-17",
             },
             "PolicyName": "pollyPolicy",
+          },
+          Object {
+            "PolicyDocument": Object {
+              "Statement": Array [
+                Object {
+                  "Action": Array [
+                    "cloudformation:SignalResource",
+                    "cloudformation:DescribeStackResource",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "cloudformationPolicy",
           },
         ],
       },
@@ -1485,7 +1475,6 @@ ldconfig
             "KeyType": "HASH",
           },
         ],
-        "TableName": "Departments",
         "TimeToLiveSpecification": Object {
           "AttributeName": "TTL",
           "Enabled": true,
@@ -1504,7 +1493,11 @@ ldconfig
           "Fn::Join": Array [
             "",
             Array [
-              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"Departments\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600100\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600200\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600300\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600400\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
+              "{\\"service\\":\\"DynamoDB\\",\\"action\\":\\"batchWriteItem\\",\\"parameters\\":{\\"RequestItems\\":{\\"",
+              Object {
+                "Ref": "DatabasedepartmentDirectory13287858",
+              },
+              "\\":[{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"science\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600100\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"art\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600200\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"history\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600300\\"}}}},{\\"PutRequest\\":{\\"Item\\":{\\"department_name\\":{\\"S\\":\\"math\\"},\\"service\\":{\\"S\\":\\"voiceConnector\\"},\\"number\\":{\\"S\\":\\"600400\\"}}}}]}},\\"physicalResourceId\\":{\\"id\\":\\"",
               Object {
                 "Ref": "DatabasedepartmentDirectory13287858",
               },
@@ -1941,6 +1934,13 @@ ldconfig
     "LexlexAudioBucket4C097646": Object {
       "DeletionPolicy": "Delete",
       "Properties": Object {
+        "OwnershipControls": Object {
+          "Rules": Array [
+            Object {
+              "ObjectOwnership": "BucketOwnerPreferred",
+            },
+          ],
+        },
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
@@ -2056,7 +2056,7 @@ ldconfig
             "Arn",
           ],
         },
-        "Runtime": "python3.9",
+        "Runtime": "python3.10",
         "Timeout": 60,
       },
       "Type": "AWS::Lambda::Function",
@@ -2696,7 +2696,7 @@ ldconfig
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "1a3fdcf12b9349cac30e87d2e42c8e85fcb7e87302ced01b490788bdf1a63601.zip",
+          "S3Key": "7e273f24e73b1c3ec423c367503042a7f8ab7a3453a55323481e350b49549320.zip",
         },
         "Environment": Object {
           "Variables": Object {

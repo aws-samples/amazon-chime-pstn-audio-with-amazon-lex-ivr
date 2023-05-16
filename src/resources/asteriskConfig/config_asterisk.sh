@@ -18,12 +18,13 @@ python3 /etc/polly/createWav.py -file history -text 'Thank you for calling histo
 python3 /etc/polly/createWav.py -file math -text 'Thank you for calling math department. Goodbye.'
 python3 /etc/polly/createWav.py -file unknown -text "Thank you for calling.  Sorry I couldn't find a department"
 
-groupadd asterisk
-useradd -r -d /var/lib/asterisk -g asterisk asterisk
-usermod -aG audio,dialout asterisk
 chown -R asterisk.asterisk /etc/asterisk
 chown -R asterisk.asterisk /var/lib/asterisk/sounds/en
 chown -R asterisk.asterisk /var/{lib,log,spool}/asterisk
 
-systemctl start asterisk
+echo '0 * * * * /sbin/asterisk -rx "core reload"' > /etc/asterisk/crontab.txt 
+crontab /etc/asterisk/crontab.txt
+
+systemctl restart asterisk
+/sbin/asterisk -rx "core reload"
 
