@@ -2696,7 +2696,7 @@ unzip -q awscliv2.zip
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "453093c76408f6b5ee783f2f7a0bb888f735819cc39fa01c35bde4f7d908e82d.zip",
+          "S3Key": "47e0bd9b9317d27053fd6d8f94207ff4632181837572f0fc13917ee1527543ca.zip",
         },
         "Environment": Object {
           "Variables": Object {
