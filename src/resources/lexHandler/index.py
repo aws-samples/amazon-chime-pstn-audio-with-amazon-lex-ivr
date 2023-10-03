@@ -110,7 +110,7 @@ def try_ex(func):
 
 def interpreted_value(slot):
     """
-    Retrieves interprated value from slot object
+    Retrieves interpreted value from slot object
     """
     if slot is not None:
         return slot["value"]["interpretedValue"]
