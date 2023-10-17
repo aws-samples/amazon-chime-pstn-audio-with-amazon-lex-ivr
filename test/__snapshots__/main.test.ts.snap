@@ -76,7 +76,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "a524840909b73225567052baa4f50f81f3f2444186a5011d26e441ac674adb81.zip",
+          "S3Key": "17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip",
         },
         "Handler": "index.handler",
         "Role": Object {
@@ -666,7 +666,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "dee0bb405ddef47dd39f42efcab9a15b346000d4f4f83d64bebaa7681ac01ad9.zip",
+          "S3Key": "4e1c22bfc3a8c9768d5a168814ab721614b22249283525e4b079d7b923a0442b.zip",
         },
         "Handler": "__entrypoint__.handler",
         "MemorySize": 128,
@@ -794,7 +794,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "5194f926380567b6fdffc61629afdad2afc818614cb227df45e499c69db163a7.zip",
+          "S3Key": "b7f33614a69548d6bafe224d751a7ef238cde19097415e553fe8b63a4c8fd8a6.zip",
         },
         "Description": Object {
           "Fn::Join": Array [
@@ -1618,6 +1618,7 @@ Object {
           "Statement": Array [
             Object {
               "Action": Array [
+                "s3:PutBucketPolicy",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",
@@ -2875,7 +2876,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
           },
         ],
         "SourceObjectKeys": Array [
-          "f1e4c227746b3ff5d706fbcd7958f98ac35ec60f885bb7b84fb07b311f53d8e9.zip",
+          "f20555a3ff9544d5913c56a9d49e6a938faff4afe218613bf3368e5378202a55.zip",
         ],
       },
       "Type": "Custom::CDKBucketDeployment",
@@ -2890,6 +2891,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
           "Statement": Array [
             Object {
               "Action": Array [
+                "s3:PutBucketPolicy",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",
