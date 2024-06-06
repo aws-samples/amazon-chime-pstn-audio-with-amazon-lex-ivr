@@ -26,39 +26,41 @@
   },
   "devDependencies": {
     "@types/jest": "^28.1.8",
-    "@types/node": "^16",
+    "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "aws-cdk": "^2.95.1",
-    "esbuild": "^0.19.5",
+    "esbuild": "^0.21.4",
     "eslint": "^8",
-    "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "^2.7.1",
-    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-import": "^2.29.1",
     "jest": "^27",
     "jest-junit": "^15",
-    "npm-check-updates": "^16",
-    "projen": "^0.75.1",
+    "projen": "^0.82.4",
     "ts-jest": "^27",
     "ts-node": "^10",
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.430.0",
-    "@aws-sdk/client-lex-runtime-v2": "^3.430.0",
-    "@types/aws-lambda": "^8.10.124",
+    "@aws-sdk/client-dynamodb": "^3.590.0",
+    "@aws-sdk/client-lex-runtime-v2": "^3.590.0",
+    "@types/aws-lambda": "^8.10.138",
     "aws-cdk-lib": "^2.95.1",
     "aws-lambda": "^1.0.7",
-    "cdk-amazon-chime-resources": "^3.0.14",
+    "cdk-amazon-chime-resources": "^3.2.13",
     "constructs": "^10.0.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.4.5"
   },
   "license": "MIT-0",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.0.0",
   "jest": {
+    "coverageProvider": "v8",
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-      "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)"
+      "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)"
     ],
     "clearMocks": true,
     "collectCoverage": true,
