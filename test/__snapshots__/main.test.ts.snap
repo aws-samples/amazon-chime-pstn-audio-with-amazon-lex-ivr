@@ -48,7 +48,7 @@ Object {
           Array [
             "aws ssm start-session --target ",
             Object {
-              "Ref": "ServerInstanceE518391Bfc4ac54abed5946a",
+              "Ref": "ServerInstanceE518391B1677bfd2f1972570",
             },
           ],
         ],
@@ -1991,12 +1991,12 @@ Object {
           "Ref": "VPCResourcesasteriskEipC341F971",
         },
         "InstanceId": Object {
-          "Ref": "ServerInstanceE518391Bfc4ac54abed5946a",
+          "Ref": "ServerInstanceE518391B1677bfd2f1972570",
         },
       },
       "Type": "AWS::EC2::EIPAssociation",
     },
-    "ServerInstanceE518391Bfc4ac54abed5946a": Object {
+    "ServerInstanceE518391B1677bfd2f1972570": Object {
       "CreationPolicy": Object {
         "ResourceSignal": Object {
           "Count": 1,
@@ -2465,7 +2465,7 @@ print('wav file created: ' + wavFile)
                 "owner": "root",
               },
               "/home/ubuntu/.ssh/authorized_keys": Object {
-                "content": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAqJ++WfXyL/uqAb/eZ1fT9/MzHCKd/n4gUgddjlcbCV
+                "content": " 
 ",
                 "encoding": "plain",
                 "group": "root",
@@ -2737,7 +2737,7 @@ mkdir -p /opt/aws/bin
 pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
 ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
 ln -s /usr/local/bin/cfn-* /opt/aws/bin/
-# fingerprint: 705cb23623a2c4dc
+# fingerprint: 3a3ef24d4edcbf85
 (
   set +e
   /opt/aws/bin/cfn-init -v --region ",
@@ -2748,7 +2748,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource ServerInstanceE518391Bfc4ac54abed5946a --url https://cloudformation.",
+                " --resource ServerInstanceE518391B1677bfd2f1972570 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -2769,7 +2769,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
                 Object {
                   "Ref": "AWS::StackName",
                 },
-                " --resource ServerInstanceE518391Bfc4ac54abed5946a --url https://cloudformation.",
+                " --resource ServerInstanceE518391B1677bfd2f1972570 --url https://cloudformation.",
                 Object {
                   "Ref": "AWS::Region",
                 },
@@ -2876,7 +2876,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
           },
         ],
         "SourceObjectKeys": Array [
-          "f20555a3ff9544d5913c56a9d49e6a938faff4afe218613bf3368e5378202a55.zip",
+          "6d7205eb89466b3515ec1010c75f7663b684c00f77e1cb28eaff74dfdfb82130.zip",
         ],
       },
       "Type": "Custom::CDKBucketDeployment",
@@ -3009,7 +3009,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
         "Targets": Array [
           Object {
             "Id": Object {
-              "Ref": "ServerInstanceE518391Bfc4ac54abed5946a",
+              "Ref": "ServerInstanceE518391B1677bfd2f1972570",
             },
           },
         ],
@@ -3170,7 +3170,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
         "Targets": Array [
           Object {
             "Id": Object {
-              "Ref": "ServerInstanceE518391Bfc4ac54abed5946a",
+              "Ref": "ServerInstanceE518391B1677bfd2f1972570",
             },
           },
         ],
