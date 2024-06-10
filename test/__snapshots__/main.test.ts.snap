@@ -76,7 +76,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "17c16a3854838fd3ff4bda08146122a6701f33b9c86ae17f415ad0dc47a97544.zip",
+          "S3Key": "97f30e67419a1676a2215492723e5add1aa491caf0cbe2dd878fc4fab0468cd4.zip",
         },
         "Handler": "index.handler",
         "Role": Object {
@@ -451,7 +451,6 @@ Object {
         "Environment": Object {
           "Variables": Object {
             "ALLOWED_DOMAIN": " ",
-            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
           },
         },
         "Handler": "index.handler",
@@ -507,7 +506,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "9eb41a5505d37607ac419321497a4f8c21cf0ee1f9b4a6b29aa04301aea5c7fd.zip",
+          "S3Key": "2d56e153cac88d3e0c2f842e8e6f6783b8725bf91f95e0673b4725448a56e96d.zip",
         },
         "Environment": Object {
           "Variables": Object {
@@ -666,7 +665,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "4e1c22bfc3a8c9768d5a168814ab721614b22249283525e4b079d7b923a0442b.zip",
+          "S3Key": "e53c580fcd57c5903acee95cb2b5c0e5a54395ec694029e9ab1b8a1c1aab0468.zip",
         },
         "Handler": "__entrypoint__.handler",
         "MemorySize": 128,
@@ -743,6 +742,7 @@ Object {
                     "logs:CreateLogDelivery",
                     "logs:GetLogDelivery",
                     "logs:DeleteLogDelivery",
+                    "logs:PutResourcePolicy",
                   ],
                   "Effect": "Allow",
                   "Resource": "*",
@@ -794,7 +794,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "b7f33614a69548d6bafe224d751a7ef238cde19097415e553fe8b63a4c8fd8a6.zip",
+          "S3Key": "2eb6a831b107939f63cfebf68e6316e1a40f79fc99cae0fee9b333bac8d29bc4.zip",
         },
         "Description": Object {
           "Fn::Join": Array [
@@ -1044,7 +1044,6 @@ Object {
             "ACCOUNT_ID": Object {
               "Ref": "AWS::AccountId",
             },
-            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
             "DEPARTMENT_DIRECTORY": Object {
               "Ref": "DatabasedepartmentDirectory13287858",
             },
@@ -2850,7 +2849,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "e2277687077a2abf9ae1af1cc9565e6715e2ebb62f79ec53aa75a1af9298f642.zip",
+          "S3Key": "3322b7049fb0ed2b7cbb644a2ada8d1116ff80c32dca89e6ada846b5de26f961.zip",
         },
         "Description": "/opt/awscli/aws",
       },
