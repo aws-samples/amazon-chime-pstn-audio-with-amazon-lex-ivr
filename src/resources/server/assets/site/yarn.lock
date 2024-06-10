@@ -136,10 +136,10 @@
     pako "2.0.4"
     tslib "^1.8.0"
 
-"@aws-amplify/notifications@1.6.12":
-  version "1.6.12"
-  resolved "https://registry.yarnpkg.com/@aws-amplify/notifications/-/notifications-1.6.12.tgz#24c0eb622c87556d926a5389d8ea4065bdcdb5d8"
-  integrity sha512-zytF0N1Wvbuvz76tjr38vlEv0oC1n6eblgzDO9LsOb6mAJt1A0PN7O6xbF68sFgo47fxQbelaIJJyt2OQ6ex/g==
+"@aws-amplify/notifications@1.6.13":
+  version "1.6.13"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/notifications/-/notifications-1.6.13.tgz#a14c8362b3d05e77fc5a7e58122b583bca90b60e"
+  integrity sha512-fH1k8P1Nts/1OIy8IKQjWpJgdsql0562CPpwGBVvPnRYqnkPxvzImjZdhwTgpu+vxjDBKEky/Buu9ws+ST7Myg==
   dependencies:
     "@aws-amplify/cache" "5.1.18"
     "@aws-amplify/core" "5.8.12"
@@ -2886,9 +2886,9 @@
     tslib "^2.3.1"
 
 "@cloudscape-design/components@^3.0.303":
-  version "3.0.648"
-  resolved "https://registry.yarnpkg.com/@cloudscape-design/components/-/components-3.0.648.tgz#abd8771553807abdb77f4a9adf24f62f729c4dfc"
-  integrity sha512-wlCKPk/UqHvwc8eV6DlgGe/YEt6zWXfL1+NOOlnPxYkkRi/GU0FPotHoBWNIXqeQG1MqVNkxLBA14VZ2gy33EA==
+  version "3.0.651"
+  resolved "https://registry.yarnpkg.com/@cloudscape-design/components/-/components-3.0.651.tgz#528de80ffb411205ac21dc91dfe3919663158c59"
+  integrity sha512-HJ5aI/RohbHEt/TL5AHpXNXqbeA8LbfHUfypSpazR8ZtM1u3ierZp5b9pHbAoGgceMJBrg6KgaeYBU0mGCgihw==
   dependencies:
     "@cloudscape-design/collection-hooks" "^1.0.0"
     "@cloudscape-design/component-toolkit" "^1.0.0-beta"
@@ -3935,9 +3935,9 @@ asynckit@^0.4.0:
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
 aws-amplify@^5.3.10:
-  version "5.3.18"
-  resolved "https://registry.yarnpkg.com/aws-amplify/-/aws-amplify-5.3.18.tgz#5acf4a7b4ee8de6b422c30d389410496eef640cb"
-  integrity sha512-PL1LcA749R+4z29GeK+BmBgQdFHjJ1kQ7Yu6+NPN4uY+Dsfysrau2n4m2q4EQVLUvB0tK4QQ0yGgAfO2zllzpg==
+  version "5.3.19"
+  resolved "https://registry.yarnpkg.com/aws-amplify/-/aws-amplify-5.3.19.tgz#1d8ec76d3c43f0edb41df867b75fe01570d3c5b4"
+  integrity sha512-/Sbgow1Zfe5RDnKyVlNZblaDuphz2g7IPBF6w6NKnM1JfuVCREHb5FwKUPr5RzfH8JAdCh/OFiCqhLDk2wo7dw==
   dependencies:
     "@aws-amplify/analytics" "6.5.12"
     "@aws-amplify/api" "5.4.12"
@@ -3947,7 +3947,7 @@ aws-amplify@^5.3.10:
     "@aws-amplify/datastore" "4.7.12"
     "@aws-amplify/geo" "2.3.12"
     "@aws-amplify/interactions" "5.2.18"
-    "@aws-amplify/notifications" "1.6.12"
+    "@aws-amplify/notifications" "1.6.13"
     "@aws-amplify/predictions" "5.5.12"
     "@aws-amplify/pubsub" "5.5.12"
     "@aws-amplify/storage" "5.9.12"
@@ -4078,14 +4078,14 @@ braces@^3.0.3, braces@~3.0.2:
     fill-range "^7.1.1"
 
 browserslist@^4.21.10, browserslist@^4.22.2, browserslist@^4.23.0:
-  version "4.23.0"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.23.0.tgz#8f3acc2bbe73af7213399430890f86c63a5674ab"
-  integrity sha512-QW8HiM1shhT2GuzkvklfjcKDiWFXHOeFCIA/huJPwHsslwcydgk7X+z2zXpEijP98UCY7HbubZt5J2Zgvf0CaQ==
+  version "4.23.1"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.23.1.tgz#ce4af0534b3d37db5c1a4ca98b9080f985041e96"
+  integrity sha512-TUfofFo/KsK/bWZ9TWQ5O26tsWW4Uhmt8IYklbnUa70udB6P2wA7w7o4PY4muaEPBQaAX+CEnmmIA41NVHtPVw==
   dependencies:
-    caniuse-lite "^1.0.30001587"
-    electron-to-chromium "^1.4.668"
+    caniuse-lite "^1.0.30001629"
+    electron-to-chromium "^1.4.796"
     node-releases "^2.0.14"
-    update-browserslist-db "^1.0.13"
+    update-browserslist-db "^1.0.16"
 
 buffer-from@^1.0.0:
   version "1.1.2"
@@ -4152,10 +4152,10 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
-caniuse-lite@^1.0.30001587:
-  version "1.0.30001629"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001629.tgz#907a36f4669031bd8a1a8dbc2fa08b29e0db297e"
-  integrity sha512-c3dl911slnQhmxUIT4HhYzT7wnBK/XYpGnYLOj4nJBaRiw52Ibe7YxlDaAeRECvA786zCuExhxIUJ2K7nHMrBw==
+caniuse-lite@^1.0.30001629:
+  version "1.0.30001632"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001632.tgz#964207b7cba5851701afb4c8afaf1448db3884b6"
+  integrity sha512-udx3o7yHJfUxMLkGohMlVHCvFvWmirKh9JAH/d7WOLPetlH+LTL5cocMZ0t7oZx/mdlOWXti97xLZWc8uURRHg==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -4655,10 +4655,10 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
-electron-to-chromium@^1.4.668:
-  version "1.4.792"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.792.tgz#738712f99d02f70c5754ca4264782915fa946849"
-  integrity sha512-rkg5/N3L+Y844JyfgPUyuKK0Hk0efo3JNxUDKvz3HgP6EmN4rNGhr2D8boLsfTV/hGo7ZGAL8djw+jlg99zQyA==
+electron-to-chromium@^1.4.796:
+  version "1.4.796"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.796.tgz#48dd6ff634b7f7df6313bd27aaa713f3af4a2b29"
+  integrity sha512-NglN/xprcM+SHD2XCli4oC6bWe6kHoytcyLKCWXmRL854F0qhPhaYgUswUsglnPxYaNQIg2uMY4BvaomIf3kLA==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -6875,7 +6875,7 @@ unpipe@1.0.0, unpipe@~1.0.0:
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
   integrity sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==
 
-update-browserslist-db@^1.0.13:
+update-browserslist-db@^1.0.16:
   version "1.0.16"
   resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.0.16.tgz#f6d489ed90fb2f07d67784eb3f53d7891f736356"
   integrity sha512-KVbTxlBYlckhF5wgfyZXTWnMn7MMZjMu9XG8bPlliUOP9ThaF4QnhP8qrjrH7DRzHfSk0oQv1wToW+iA5GajEQ==
