@@ -665,7 +665,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-us-east-1",
           },
-          "S3Key": "60936947b730b5430483df09a70c0c111297ba7a3c1bec52017983223f1aaf49.zip",
+          "S3Key": "27927d2b94f267a2db9c8eed444ba9462506ef33202ece69dd79417f4f0abb4c.zip",
         },
         "Handler": "__entrypoint__.handler",
         "MemorySize": 128,
