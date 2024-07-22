@@ -2875,7 +2875,7 @@ ln -s /usr/local/bin/cfn-* /opt/aws/bin/
           },
         ],
         "SourceObjectKeys": Array [
-          "0970205e911ebda17670f0ec4acb54f08fe56b2caabb8766ea85cb6745d5c1fa.zip",
+          "67ea25782159fd59d9aa7eaa584b3d05dfa509fb439a61a7711c38b04ad8ae33.zip",
         ],
       },
       "Type": "Custom::CDKBucketDeployment",
