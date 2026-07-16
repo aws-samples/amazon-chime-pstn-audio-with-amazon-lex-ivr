@@ -1,3 +1,5 @@
+**This solution is no longer recommended, for IVR and lex integration please build with [Amazon Connect Customer](https://aws.amazon.com/products/connect/customer/)**
+
 # How to build a smart interactive voice response (IVR) call routing system
 
 Interactive Voice Response (IVR) systems gather information from customers, help them find information quickly, and route callers to the right destination. An intelligent IVR system can help customers avoid frustration and complete tasks quickly. Using the [Amazon Chime SDK](https://aws.amazon.com/chime/chime-sdk), builders can easily create smart call routing IVR solutions to deliver a seamless end user experience using Amazon Chime Voice Connector SIP trunking or the Public Switched Telephone Network (PSTN).
